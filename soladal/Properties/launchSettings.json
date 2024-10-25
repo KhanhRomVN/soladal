@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "soladal (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "soladal (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}
