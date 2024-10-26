@@ -12,6 +12,7 @@ export default function HomePage() {
                 <h1 className="text-4xl font-bold">{t("title")}</h1>
                 <LangToggle />
                 <ToggleTheme />
+                <h1> current env: {process.env.NODE_ENV}</h1>
             </div>
         </>
     );
