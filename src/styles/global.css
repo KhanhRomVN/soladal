@@ -134,6 +134,10 @@
         --button-hover-2: #1a1a1a;
 
         --outline: #27272A;
+
+        /* Icon */
+        --icon-primary: #19A7CE;
+        --icon-secondary: #FAFAFA;
     }
 }
 

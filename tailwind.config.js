@@ -68,6 +68,10 @@ module.exports = {
                     hover1: "var(--button-hover-1)",
                 },
                 outline: "var(--outline)",
+                icon: {
+                    primary: "var(--icon-primary)",
+                    secondary: "var(--icon-secondary)",
+                },
             },
             fontFamily: {
                 sans: ["Geist", "sans-serif"],

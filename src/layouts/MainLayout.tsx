@@ -1,8 +1,12 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useContext } from "react";
 import DragWindowRegion from "@/components/DragWindowRegion";
 import NavigationMenu from "@/components/NavigationMenu";
 import Sidebar from "@/components/Sidebar";
 import { Search, X, Plus, ChevronDown, User, CreditCard, Fingerprint, Globe, Copy, FileText } from "lucide-react";
+// context
+import { AccountDrawerContext } from "@/Context/AccountDrawerContext";
+import AddGroupDrawer from "@/components/AddGroupDrawer";
+import AddAccountDrawer from "@/components/AddAccountDrawer";
 
 
 function SearchBar() {
@@ -40,8 +44,9 @@ function SearchBar() {
 }
 
 function DropdownMenu() {
+    const { openAccountDrawer } = useContext(AccountDrawerContext);
     const options = [
-        { name: "Account", icon: User, color: "hover:bg-blue-100 hover:text-blue-600" },
+        { name: "Account", icon: User, color: "hover:bg-blue-100 hover:text-blue-600", onClick: openAccountDrawer },
         { name: "Card", icon: CreditCard, color: "hover:bg-green-100 hover:text-green-600" },
         { name: "Identify", icon: Fingerprint, color: "hover:bg-purple-100 hover:text-purple-600" },
         { name: "Google", icon: Globe, color: "hover:bg-red-100 hover:text-red-600" },
@@ -78,6 +83,12 @@ function DropdownMenu() {
                         <li 
                             key={index} 
                             className={`px-4 py-2 flex items-center cursor-pointer text-gray-400 ${option.color} transition-colors duration-150`}
+                            onClick={() => {
+                                if (option.onClick) {
+                                    option.onClick();
+                                }
+                                setIsOpen(false);
+                            }}
                         >
                             <option.icon className="w-4 h-4 mr-2" />
                             {option.name}
@@ -110,6 +121,8 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
                     </div>
                 </div>
             </div>
+            <AddAccountDrawer />
+            <AddGroupDrawer />
         </div>
     );
 }
