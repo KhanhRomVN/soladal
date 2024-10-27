@@ -72,6 +72,12 @@ module.exports = {
                     primary: "var(--icon-primary)",
                     secondary: "var(--icon-secondary)",
                 },
+                table: {
+                    headerBackground: "var(--table-header-background)",
+                    headerHover: "var(--table-header-hover)",
+                    bodyBackground: "var(--table-body-background)",
+                    bodyHover: "var(--table-body-hover)",
+                },
             },
             fontFamily: {
                 sans: ["Geist", "sans-serif"],

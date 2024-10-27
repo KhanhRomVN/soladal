@@ -117,6 +117,7 @@
         --input: #27272A;
         --ring: #D4D4D8;
 
+        /* Sidebar */
         --sidebar-primary: #010D18;
         --sidebar-foreground: #FAFAFA;
 
@@ -138,6 +139,12 @@
         /* Icon */
         --icon-primary: #19A7CE;
         --icon-secondary: #FAFAFA;
+
+        /* Table */
+        --table-header-background: #010D18;
+        --table-header-hover: #021526;
+        --table-body-background: #010D18;
+        --table-body-hover: #021526;
     }
 }
 

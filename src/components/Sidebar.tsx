@@ -12,6 +12,7 @@ import * as LucideIcons from 'lucide-react';
 import { useContent } from '@/Context/ContentContext';
 import { ContentType } from '@/Context/ContentContext';
 import parse from 'html-react-parser';
+// import { useGroupDrawer } from '@/Context/GroupDrawerContext';
 
 
 interface AppGroup {
@@ -95,7 +96,7 @@ const Sidebar: React.FC = () => {
           className="w-full justify-between hover:bg-button-hover1"
           onClick={() => {
             console.log("Create Group button clicked");
-            // openGroupDrawer();
+            // useGroupDrawer();
           }}
         >
           <span className="text-primary text-base">Create Group</span>
