@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import FormInput from '@/components/FormInput';
+import FormInput from '@/components/FormInput/FormInput';
 
 const LoginPage: React.FC = () => {
     const [formData, setFormData] = useState({

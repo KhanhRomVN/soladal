@@ -1,6 +1,6 @@
 import React, { useContext, useRef, useEffect, useState } from 'react';
 import { X, ChevronDown } from 'lucide-react';
-import FormInputV2 from '@/components/FormInputV2';
+import FormInputV2 from '@/components/FormInput/FormInputV2';
 import { Button } from '@/components/ui/button';
 import { _POST } from '@/utils/auth_api';
 import * as LucideIcons from 'lucide-react';

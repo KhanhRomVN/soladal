@@ -9,12 +9,14 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import * as LucideIcons from 'lucide-react';
-import { GroupDrawerContext } from "@/Context/GroupDrawerContext";
+import { useContent } from '@/Context/ContentContext';
+import { ContentType } from '@/Context/ContentContext';
 
 interface AppGroup {
   id: number;
   title: string;
   lucideIcon: string;
+  type: ContentType;
 }
 
 interface Group {
@@ -23,22 +25,23 @@ interface Group {
   title: string;
   lucideIcon: string;
   canDelete: boolean;
+  type: ContentType;
   isFavorite: boolean;
   createdAt: string;
   updatedAt: string;
 }
 
 const Sidebar: React.FC = () => {
-  const { openGroupDrawer } = useContext(GroupDrawerContext);
+  const { setCurrentContent } = useContent();
   const [groups, setGroups] = useState<Group[]>([]);
 
   const appGroups: AppGroup[] = [
-    { id: 1, title: 'Account', lucideIcon: 'User' },
-    { id: 2, title: 'Card', lucideIcon: 'CreditCard' },
-    { id: 3, title: 'Identify', lucideIcon: 'Fingerprint' },
-    { id: 4, title: 'Google', lucideIcon: 'Search' },
-    { id: 5, title: 'Clone', lucideIcon: 'Copy' },
-    { id: 6, title: 'Note', lucideIcon: 'FileText' },
+    { id: 1, title: 'Account', lucideIcon: 'User', type: 'account' },
+    { id: 2, title: 'Card', lucideIcon: 'CreditCard', type: 'card' },
+    { id: 3, title: 'Identify', lucideIcon: 'Fingerprint', type: 'identify' },
+    { id: 4, title: 'Google', lucideIcon: 'Search', type: 'google' },
+    { id: 5, title: 'Clone', lucideIcon: 'Copy', type: 'clone' },
+    { id: 6, title: 'Note', lucideIcon: 'FileText', type: 'note' },
   ];
 
   useEffect(() => {
@@ -60,6 +63,10 @@ const Sidebar: React.FC = () => {
     return IconComponent ? <IconComponent className="h-4 w-4 mr-2" /> : <LucideIcons.File className="h-4 w-4 mr-2" />;
   };
 
+  const handleTabClick = (type: ContentType, id: number | null) => {
+    setCurrentContent(type, id);
+  };
+
   return (
     <aside className="w-80 bg-sidebar-primary p-2 flex flex-col justify-between">
       {/* Top */}
@@ -69,7 +76,7 @@ const Sidebar: React.FC = () => {
           className="w-full justify-between hover:bg-button-hover1"
           onClick={() => {
             console.log("Create Group button clicked");
-            openGroupDrawer();
+            // openGroupDrawer();
           }}
         >
           <span className="text-primary text-base">Create Group</span>
@@ -77,12 +84,13 @@ const Sidebar: React.FC = () => {
         </Button>
         {/* Group[App] list */}
         <div className="mt-2 pb-2 border-b border-gray-700">
-          {appGroups.map((group) => (
-            <Button
-              key={group.id}
-              variant="ghost"
-              className="w-full justify-between hover:bg-button-hover1 focus:bg-primary focus:text-white mb-2 pr-2.5"
-            >
+        {appGroups.map((group) => (
+          <Button
+            key={group.id}
+            variant="ghost"
+            className="w-full justify-between hover:bg-button-hover1 focus:bg-primary focus:text-white mb-2 pr-2.5"
+            onClick={() => handleTabClick(group.type as ContentType, null)}
+          >
               <span className="text-white text-base flex items-center">
                 {getIconComponent(group.lucideIcon)}
                 {group.title}
@@ -105,13 +113,14 @@ const Sidebar: React.FC = () => {
         </div>
         {/* Group[User] list */}
         {groups.length > 0 && (
-          <div className="mt-2">
-            {groups.map((group) => (
-              <Button
-                key={group.id}
-                variant="ghost"
-                className="w-full justify-between hover:bg-button-hover1 focus:bg-primary focus:text-white mb-2 pr-2.5"
-              >
+        <div className="mt-2">
+          {groups.map((group) => (
+            <Button
+              key={group.id}
+              variant="ghost"
+              className="w-full justify-between hover:bg-button-hover1 focus:bg-primary focus:text-white mb-2 pr-2.5"
+              onClick={() => handleTabClick(group.type as ContentType, group.id)}
+            >
                 <span className="text-white text-base flex items-center">
                   {getIconComponent(group.lucideIcon)}
                   {group.title}

@@ -9,6 +9,7 @@ import { RouterProvider } from "@tanstack/react-router";
 // context
 import { AccountDrawerProvider } from "./Context/AccountDrawerContext";
 import { GroupDrawerProvider } from "./Context/GroupDrawerContext";
+import { ContentProvider } from "./Context/ContentContext";
 export default function App() {
     const { i18n } = useTranslation();
 
@@ -25,7 +26,9 @@ root.render(
     <React.StrictMode>
         <GroupDrawerProvider>
             <AccountDrawerProvider>
-                <App />
+                <ContentProvider>
+                    <App />
+                </ContentProvider>
             </AccountDrawerProvider>
         </GroupDrawerProvider>
     </React.StrictMode>

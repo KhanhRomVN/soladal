@@ -1,19 +1,12 @@
-import React from "react";
-import ToggleTheme from "@/components/ToggleTheme";
-import { useTranslation } from "react-i18next";
-import LangToggle from "@/components/LangToggle";
+import React from 'react';
+import MainContent from '@/components/Content/MainContent';
 
-export default function HomePage() {
-    const { t } = useTranslation();
+const HomePage: React.FC = () => {
+  return (
+    <div className="flex h-full">
+      <MainContent />
+    </div>
+  );
+};
 
-    return (
-        <>
-            <div className="flex h-screen flex-col items-center justify-center gap-2">
-                <h1 className="text-4xl font-bold">{t("title")}</h1>
-                <LangToggle />
-                <ToggleTheme />
-                <h1> current env: {process.env.NODE_ENV}</h1>
-            </div>
-        </>
-    );
-}
+export default HomePage;

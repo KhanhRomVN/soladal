@@ -1,6 +1,6 @@
 import React, { useContext, useRef, useEffect, useState } from 'react';
 import { X, Mail, User, Lock, Key, Globe, FileText, Eye, EyeOff, Phone, ChevronDown } from 'lucide-react';
-import FormInputV2 from '@/components/FormInputV2';
+import FormInputV2 from '@/components/FormInput/FormInputV2';
 import { Button } from '@/components/ui/button';
 import { _GET, _POST } from '@/utils/auth_api';
 // context

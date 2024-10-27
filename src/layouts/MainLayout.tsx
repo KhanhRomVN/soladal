@@ -5,9 +5,9 @@ import Sidebar from "@/components/Sidebar";
 import { Search, X, Plus, ChevronDown, User, CreditCard, Fingerprint, Globe, Copy, FileText } from "lucide-react";
 // context
 import { AccountDrawerContext } from "@/Context/AccountDrawerContext";
-import AddGroupDrawer from "@/components/AddGroupDrawer";
-import AddAccountDrawer from "@/components/AddAccountDrawer";
-
+import AddGroupDrawer from "@/components/Drawer/AddGroupDrawer";
+import AddAccountDrawer from "@/components/Drawer/AddAccountDrawer";
+import { ContentProvider } from "@/Context/ContentContext";
 
 function SearchBar() {
     const [searchTerm, setSearchTerm] = useState("");
@@ -80,8 +80,8 @@ function DropdownMenu() {
             {isOpen && (
                 <ul className="absolute right-0 mt-1 w-48 bg-card border border-outline rounded-sm shadow-lg z-10">
                     {options.map((option, index) => (
-                        <li 
-                            key={index} 
+                        <li
+                            key={index}
                             className={`px-4 py-2 flex items-center cursor-pointer text-gray-400 ${option.color} transition-colors duration-150`}
                             onClick={() => {
                                 if (option.onClick) {
@@ -102,27 +102,29 @@ function DropdownMenu() {
 
 export default function MainLayout({ children }: { children: React.ReactNode }) {
     return (
-        <div className="flex flex-col h-screen">
-            <DragWindowRegion title="Soladal" />
-            <NavigationMenu />
-            <div className="flex flex-1 overflow-hidden">
-                <div className="flex-1 flex flex-col">
-                    <div className="flex flex-1 overflow-hidden">
-                        <Sidebar />
-                        <div className="flex-1 flex flex-col">
-                            <div className="p-2 flex items-center border-b border-outline ">
-                                <div className="flex-grow">
-                                    <SearchBar />
+        <ContentProvider>
+            <div className="flex flex-col h-screen">
+                <DragWindowRegion title="Soladal" />
+                <NavigationMenu />
+                <div className="flex flex-1 overflow-hidden">
+                    <div className="flex-1 flex flex-col">
+                        <div className="flex flex-1 overflow-hidden">
+                            <Sidebar />
+                            <div className="flex-1 flex flex-col">
+                                <div className="p-2 flex items-center border-b border-outline ">
+                                    <div className="flex-grow">
+                                        <SearchBar />
+                                    </div>
+                                    <DropdownMenu />
                                 </div>
-                                <DropdownMenu />
+                                <main className="flex-1 overflow-auto p-4">{children}</main>
                             </div>
-                            <main className="flex-1 overflow-auto p-4">{children}</main>
                         </div>
                     </div>
                 </div>
+                <AddAccountDrawer />
+                <AddGroupDrawer />
             </div>
-            <AddAccountDrawer />
-            <AddGroupDrawer />
-        </div>
+        </ContentProvider>
     );
 }
