@@ -11,12 +11,15 @@ import {
 import * as LucideIcons from 'lucide-react';
 import { useContent } from '@/Context/ContentContext';
 import { ContentType } from '@/Context/ContentContext';
+import parse from 'html-react-parser';
+
 
 interface AppGroup {
   id: number;
   title: string;
   lucideIcon: string;
   type: ContentType;
+  bgColor: string;
 }
 
 interface Group {
@@ -36,12 +39,12 @@ const Sidebar: React.FC = () => {
   const [groups, setGroups] = useState<Group[]>([]);
 
   const appGroups: AppGroup[] = [
-    { id: 1, title: 'Account', lucideIcon: 'User', type: 'account' },
-    { id: 2, title: 'Card', lucideIcon: 'CreditCard', type: 'card' },
-    { id: 3, title: 'Identify', lucideIcon: 'Fingerprint', type: 'identify' },
-    { id: 4, title: 'Google', lucideIcon: 'Search', type: 'google' },
-    { id: 5, title: 'Clone', lucideIcon: 'Copy', type: 'clone' },
-    { id: 6, title: 'Note', lucideIcon: 'FileText', type: 'note' },
+    { id: 1, title: 'Account', lucideIcon: 'User', type: 'account', bgColor: 'bg-blue-500' },
+    { id: 2, title: 'Card', lucideIcon: 'CreditCard', type: 'card', bgColor: 'bg-green-500' },
+    { id: 3, title: 'Identify', lucideIcon: 'Fingerprint', type: 'identify', bgColor: 'bg-yellow-500' },
+    { id: 4, title: 'Google', lucideIcon: 'Search', type: 'google', bgColor: 'bg-red-500' },
+    { id: 5, title: 'Clone', lucideIcon: 'Copy', type: 'clone', bgColor: 'bg-purple-500' },
+    { id: 6, title: 'Note', lucideIcon: 'FileText', type: 'note', bgColor: 'bg-pink-500' },
   ];
 
   useEffect(() => {
@@ -58,9 +61,25 @@ const Sidebar: React.FC = () => {
     }
   };
 
-  const getIconComponent = (iconName: string) => {
+  const getIconComponent = (iconName: string, bgColor: string) => {
     const IconComponent = LucideIcons[iconName as keyof typeof LucideIcons] as React.ElementType;
-    return IconComponent ? <IconComponent className="h-4 w-4 mr-2" /> : <LucideIcons.File className="h-4 w-4 mr-2" />;
+    return IconComponent ? (
+      <div className={`${bgColor} p-1 rounded-sm mr-2`}>
+        <IconComponent className="h-4 w-4 text-white" />
+      </div>
+    ) : (
+      <div className={`${bgColor} p-1 rounded-sm mr-2`}>
+        <LucideIcons.File className="h-4 w-4 text-white" />
+      </div>
+    );
+  };
+
+  const getUserGroupIcon = (lucideIcon: string) => {
+    return (
+      <div className="bg-gray-600 p-1 rounded-sm mr-2">
+        {parse(lucideIcon)}
+      </div>
+    );
   };
 
   const handleTabClick = (type: ContentType, id: number | null) => {
@@ -91,10 +110,10 @@ const Sidebar: React.FC = () => {
             className="w-full justify-between hover:bg-button-hover1 focus:bg-primary focus:text-white mb-2 pr-2.5"
             onClick={() => handleTabClick(group.type as ContentType, null)}
           >
-              <span className="text-white text-base flex items-center">
-                {getIconComponent(group.lucideIcon)}
-                {group.title}
-              </span>
+            <span className="text-white text-base flex items-center">
+              {getIconComponent(group.lucideIcon, group.bgColor)}
+              {group.title}
+            </span>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" size="icon" className="h-8 w-8 p-0">
@@ -121,10 +140,10 @@ const Sidebar: React.FC = () => {
               className="w-full justify-between hover:bg-button-hover1 focus:bg-primary focus:text-white mb-2 pr-2.5"
               onClick={() => handleTabClick(group.type as ContentType, group.id)}
             >
-                <span className="text-white text-base flex items-center">
-                  {getIconComponent(group.lucideIcon)}
-                  {group.title}
-                </span>
+              <span className="text-white text-base flex items-center">
+                {getUserGroupIcon(group.lucideIcon)}
+                {group.title}
+              </span>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button variant="ghost" size="icon" className="h-8 w-8 p-0">
