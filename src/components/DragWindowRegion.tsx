@@ -1,5 +1,6 @@
 import { closeWindow, maximizeWindow, minimizeWindow } from "@/helpers/window_helpers";
 import React, { type ReactNode } from "react";
+import { Minus, Maximize2, X } from "lucide-react";
 
 interface DragWindowRegionProps {
     title?: ReactNode;
@@ -7,10 +8,15 @@ interface DragWindowRegionProps {
 
 export default function DragWindowRegion({ title }: DragWindowRegionProps) {
     return (
-        <div className="flex w-screen items-stretch justify-between">
-            <div className="draglayer w-full">
+        <div className="flex w-full items-center justify-between px-4 py-1">
+            <div className="draglayer flex flex-1 items-center">
+                <img
+                    src="/src/assets/logos/logo-no-background.png"
+                    alt="Logo"
+                    className="mr-1 h-6 w-6"
+                />
                 {title && (
-                    <div className="flex flex-1 select-none whitespace-nowrap p-2 text-xs text-gray-400">
+                    <div className="select-none whitespace-nowrap text-base text-gray-500">
                         {title}
                     </div>
                 )}
@@ -22,48 +28,37 @@ export default function DragWindowRegion({ title }: DragWindowRegionProps) {
 
 function WindowButtons() {
     return (
-        <div className="flex">
-            <button
-                title="Minimize"
-                type="button"
-                className="p-2 hover:bg-slate-300"
-                onClick={minimizeWindow}
-            >
-                <svg aria-hidden="true" role="img" width="12" height="12" viewBox="0 0 12 12">
-                    <rect fill="currentColor" width="10" height="1" x="1" y="6"></rect>
-                </svg>
-            </button>
-            <button
-                title="Maximize"
-                type="button"
-                className="p-2 hover:bg-slate-300"
-                onClick={maximizeWindow}
-            >
-                <svg aria-hidden="true" role="img" width="12" height="12" viewBox="0 0 12 12">
-                    <rect
-                        width="9"
-                        height="9"
-                        x="1.5"
-                        y="1.5"
-                        fill="none"
-                        stroke="currentColor"
-                    ></rect>
-                </svg>
-            </button>
-            <button
-                type="button"
-                title="Close"
-                className="p-2 hover:bg-red-300"
-                onClick={closeWindow}
-            >
-                <svg aria-hidden="true" role="img" width="12" height="12" viewBox="0 0 12 12">
-                    <polygon
-                        fill="currentColor"
-                        fillRule="evenodd"
-                        points="11 1.576 6.583 6 11 10.424 10.424 11 6 6.583 1.576 11 1 10.424 5.417 6 1 1.576 1.576 1 6 5.417 10.424 1"
-                    ></polygon>
-                </svg>
-            </button>
+        <div className="flex items-center space-x-2">
+            <WindowButton onClick={minimizeWindow} icon={<Minus />} tooltip="Minimize" hoverColor="yellow" />
+            <WindowButton onClick={maximizeWindow} icon={<Maximize2 />} tooltip="Maximize" hoverColor="green" />
+            <WindowButton onClick={closeWindow} icon={<X />} tooltip="Close" hoverColor="red" />
         </div>
+    );
+}
+
+interface WindowButtonProps {
+    onClick: () => void;
+    icon: ReactNode;
+    tooltip: string;
+    hoverColor: 'yellow' | 'green' | 'red';
+}
+
+function WindowButton({ onClick, icon, tooltip, hoverColor }: WindowButtonProps) {
+    const hoverColorClass = {
+        yellow: 'hover:bg-yellow-500',
+        green: 'hover:bg-green-500',
+        red: 'hover:bg-red-500'
+    }[hoverColor];
+
+    return (
+        <button
+            onClick={onClick}
+            className={`rounded-sm ${hoverColorClass} hover:text-white focus:outline-none focus:ring-2 focus:ring-gray-300`}
+            title={tooltip}
+        >
+            <span className="w-4 h-4 flex items-center justify-center">
+                {icon}
+            </span>
+        </button>
     );
 }

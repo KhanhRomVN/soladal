@@ -4,29 +4,48 @@ import { RootRoute } from "./__root";
 import AboutPage from "@/pages/AboutPage";
 import LoginPage from "@/pages/LoginPage";
 import RegisterPage from "@/pages/RegisterPage";
+import BaseLayout from "@/layouts/BaseLayout";
+import MainLayout from "@/layouts/MainLayout";
+import React from "react";
 
 export const HomeRoute = createRoute({
     getParentRoute: () => RootRoute,
     path: "/",
-    component: HomePage,
+    component: () => (
+        <MainLayout>
+            <HomePage />
+        </MainLayout>
+    ),
 });
 
 export const AboutRoute = createRoute({
     getParentRoute: () => RootRoute,
     path: "/about",
-    component: AboutPage,
+    component: () => (
+        <BaseLayout>
+            <AboutPage />
+        </BaseLayout>
+    ),
 });
 
 export const LoginRoute = createRoute({
     getParentRoute: () => RootRoute,
     path: "/login",
-    component: LoginPage,
+    component: () => (
+        <BaseLayout>
+            <LoginPage />
+        </BaseLayout>
+    ),
 });
 
 export const RegisterRoute = createRoute({
     getParentRoute: () => RootRoute,
     path: "/register",
-    component: RegisterPage,
+    component: () => (
+        <BaseLayout>
+            <RegisterPage />
+        </BaseLayout>
+    ),
 });
 
 export const rootTree = RootRoute.addChildren([HomeRoute, AboutRoute, LoginRoute, RegisterRoute]);
