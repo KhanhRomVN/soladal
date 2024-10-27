@@ -140,10 +140,11 @@ const AddAccountDrawer: React.FC = () => {
                             {groups.length > 0 ? (
                                 <select
                                     id="dropdown"
-                                    value={selectedGroupId || ''}
+                                    value={selectedGroupId ?? -1}
                                     onChange={(e) => setSelectedGroupId(Number(e.target.value))}
                                     className="w-full bg-gray-700 text-white rounded-md border border-gray-600 focus:border-primary focus:ring-primary appearance-none pr-10 py-2 pl-3 text-sm"
                                 >
+                                    <option value={-1}>Account</option>
                                     {groups.map((group) => (
                                         <option key={group.id} value={group.id}>
                                             {group.title}

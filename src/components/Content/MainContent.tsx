@@ -6,7 +6,7 @@ import IdentifyContent from '@/components/Content/IndentifyContent';
 import GoogleContent from '@/components/Content/GoogleContent';
 import CloneContent from '@/components/Content/CloneContent';
 import NoteContent from '@/components/Content/NoteContent';
-import { ContentProps } from '@/types/content';
+import { ContentType } from '@/Context/ContentContext';
 
 const MainContent: React.FC = () => {
   const { currentTab, currentId } = useContent();
