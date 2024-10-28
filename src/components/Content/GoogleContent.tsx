@@ -1,195 +1,108 @@
-import React, { useState } from 'react';
-import { MoreVertical, X } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { _GET } from '../../utils/auth_api';
+import { User, MoreVertical } from 'lucide-react';
 import {
     createColumnHelper,
     flexRender,
     getCoreRowModel,
     useReactTable,
+    getPaginationRowModel,
 } from '@tanstack/react-table';
-import 'react-modern-drawer/dist/index.css'
+import { Button } from '../ui/button';
 import GoogleContentDrawer from '../Drawer/EditDrawer/GoogleContentDrawer';
 
+interface GoogleAccount {
+    id: number;
+    userId: number;
+    type: string;
+    groupId: number;
+    email: string;
+    password: string;
+    recoveryEmail: string;
+    twoFactor: string;
+    phone: string;
+    displayName: string;
+    dateOfBirth: string;
+    country: string;
+    language: string;
+    agent: string;
+    proxy: string;
+    status: string;
+    notes: string;
+    isFavorite: boolean;
+    createdAt: string;
+    updatedAt: string;
+}
 
 interface GoogleContentProps {
     id: number | null;
 }
 
-const googleData = [
-    {
-        "id": 1,
-        "userId": 101,
-        "email": "john.doe@gmail.com",
-        "phone": "+1234567890",
-        "password": "SecurePass123!",
-        "country": "United States",
-        "agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
-        "twoFactor": "ABCD1234",
-        "isFavorite": true,
-        "createdAt": "2024-01-15T08:30:00",
-        "updatedAt": "2024-03-20T15:45:00"
-    },
-    {
-        "id": 2,
-        "userId": 102,
-        "email": "mary.smith@gmail.com",
-        "phone": "+1987654321",
-        "password": "MaryPass456!",
-        "country": "Canada",
-        "agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36",
-        "twoFactor": "EFGH5678",
-        "isFavorite": false,
-        "createdAt": "2024-02-01T10:20:00",
-        "updatedAt": "2024-03-19T14:30:00"
-    },
-    {
-        "id": 3,
-        "userId": 103,
-        "email": "david.wilson@gmail.com",
-        "phone": "+1122334455",
-        "password": "DavidSecure789!",
-        "country": "United Kingdom",
-        "agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 14_7_1 like Mac OS X) AppleWebKit/605.1.15",
-        "twoFactor": "IJKL9012",
-        "isFavorite": true,
-        "createdAt": "2024-02-15T09:15:00",
-        "updatedAt": "2024-03-18T16:20:00"
-    },
-    {
-        "id": 4,
-        "userId": 104,
-        "email": "sarah.jones@gmail.com",
-        "phone": "+1555666777",
-        "password": "SarahPass321!",
-        "country": "Australia",
-        "agent": "Mozilla/5.0 (Linux; Android 11; SM-G991B) AppleWebKit/537.36",
-        "twoFactor": "MNOP3456",
-        "isFavorite": false,
-        "createdAt": "2024-03-01T11:45:00",
-        "updatedAt": "2024-03-17T13:10:00"
-    },
-    {
-        "id": 5,
-        "userId": 105,
-        "email": "michael.brown@gmail.com",
-        "phone": "+1999888777",
-        "password": "MikeSecure567!",
-        "country": "Germany",
-        "agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/91.0.4472.124",
-        "twoFactor": "QRST7890",
-        "isFavorite": true,
-        "createdAt": "2024-03-05T14:25:00",
-        "updatedAt": "2024-03-16T17:40:00"
-    },
-    {
-        "id": 6,
-        "userId": 106,
-        "email": "emma.davis@gmail.com",
-        "phone": "+1777888999",
-        "password": "EmmaPass789!",
-        "country": "France",
-        "agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Safari/605.1.15",
-        "twoFactor": "UVWX1234",
-        "isFavorite": false,
-        "createdAt": "2024-03-10T12:50:00",
-        "updatedAt": "2024-03-15T09:30:00"
-    },
-    {
-        "id": 7,
-        "userId": 107,
-        "email": "james.miller@gmail.com",
-        "phone": "+1444555666",
-        "password": "JamesSecure234!",
-        "country": "Japan",
-        "agent": "Mozilla/5.0 (iPad; CPU OS 14_7_1 like Mac OS X) AppleWebKit/605.1.15",
-        "twoFactor": "YZAB5678",
-        "isFavorite": true,
-        "createdAt": "2024-03-12T16:15:00",
-        "updatedAt": "2024-03-14T11:20:00"
-    },
-    {
-        "id": 8,
-        "userId": 108,
-        "email": "lisa.taylor@gmail.com",
-        "phone": "+1333222111",
-        "password": "LisaPass890!",
-        "country": "Brazil",
-        "agent": "Mozilla/5.0 (Linux; Android 12; Pixel 6) AppleWebKit/537.36",
-        "twoFactor": "CDEF9012",
-        "isFavorite": false,
-        "createdAt": "2024-03-13T13:40:00",
-        "updatedAt": "2024-03-13T13:40:00"
-    },
-    {
-        "id": 9,
-        "userId": 109,
-        "email": "robert.anderson@gmail.com",
-        "phone": "+1666777888",
-        "password": "RobertSecure345!",
-        "country": "Spain",
-        "agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Firefox/89.0",
-        "twoFactor": "GHIJ3456",
-        "isFavorite": true,
-        "createdAt": "2024-03-14T15:30:00",
-        "updatedAt": "2024-03-14T15:30:00"
-    },
-    {
-        "id": 10,
-        "userId": 110,
-        "email": "emily.white@gmail.com",
-        "phone": "+1888999000",
-        "password": "EmilyPass678!",
-        "country": "Italy",
-        "agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Chrome/92.0.4515.131",
-        "twoFactor": "KLMN7890",
-        "isFavorite": false,
-        "createdAt": "2024-03-15T10:20:00",
-        "updatedAt": "2024-03-15T10:20:00"
-    }
-];
-
 const GoogleContent: React.FC<GoogleContentProps> = ({ id }) => {
-    const [selectedRow, setSelectedRow] = useState<typeof googleData[0] | null>(null);
+    const [data, setData] = useState<GoogleAccount[]>([]);
+    const [selectedRow, setSelectedRow] = useState<GoogleAccount | null>(null);
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [filterCountry, setFilterCountry] = useState('all');
 
-    const [isEditing, setIsEditing] = useState(false);
-    const [editedRow, setEditedRow] = useState<typeof googleData[0] | null>(null);
+    useEffect(() => {
+        const fetchData = async () => {
+            setLoading(true);
+            setError(null);
+            try {
+                const endpoint = id ? `/googles/group/${id}` : '/googles';
+                const response = await _GET(endpoint);
+                setData(response);
+            } catch (err) {
+                console.error('Error fetching google accounts:', err);
+                setError('Failed to fetch accounts');
+            } finally {
+                setLoading(false);
+            }
+        };
 
-    const handleEditClick = () => {
-        setIsEditing(true);
-        setEditedRow(selectedRow);
-    };
+        fetchData();
+    }, [id]);
 
-    const handleSave = () => {
-        if (editedRow) {
-            setSelectedRow(editedRow);
-            setIsEditing(false);
-        }
-    };
+    const filteredData = React.useMemo(() => {
+        return data.filter(item => {
+            const matchesSearch = (item.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                item.phone?.includes(searchTerm) ||
+                item.country?.toLowerCase().includes(searchTerm.toLowerCase())) ?? false;
+            const matchesCountry = filterCountry === 'all' || item.country === filterCountry;
+            return matchesSearch && matchesCountry;
+        });
+    }, [searchTerm, filterCountry, data]);
 
-    const columnHelper = createColumnHelper<typeof googleData[0]>();
+    const uniqueCountries = React.useMemo(() => {
+        return ['all', ...new Set(data.map(item => item.country).filter(Boolean))];
+    }, [data]);
+
+    const columnHelper = createColumnHelper<GoogleAccount>();
 
     const columns = [
         columnHelper.accessor('email', {
             header: 'Email',
-            cell: info => info.getValue(),
+            cell: info => info.getValue() || 'N/A',
         }),
         columnHelper.accessor('phone', {
             header: 'Phone',
-            cell: info => info.getValue(),
+            cell: info => info.getValue() || 'N/A',
         }),
         columnHelper.accessor('country', {
             header: 'Country',
-            cell: info => info.getValue(),
+            cell: info => info.getValue() || 'N/A',
         }),
         columnHelper.accessor('password', {
             header: 'Password',
-            cell: info => info.getValue(),
+            cell: info => info.getValue() ? '••••••••' : 'N/A',
         }),
         columnHelper.accessor('createdAt', {
             header: 'Created At',
             cell: info => new Date(info.getValue()).toLocaleDateString(),
         }),
-
         columnHelper.accessor('id', {
             header: 'Action',
             cell: (info) => (
@@ -207,18 +120,47 @@ const GoogleContent: React.FC<GoogleContentProps> = ({ id }) => {
     ];
 
     const table = useReactTable({
-        data: googleData,
+        data: filteredData,
         columns,
         getCoreRowModel: getCoreRowModel(),
+        getPaginationRowModel: getPaginationRowModel(),
+        initialState: {
+            pagination: {
+                pageSize: 10,
+            },
+        },
     });
 
-    const handleCloseDrawer = () => {
-        setIsDrawerOpen(false);
-        setIsEditing(false);
-    };
+    if (loading) return <div className="p-4">Loading...</div>;
+    if (error) return <div className="p-4 text-red-500">{error}</div>;
 
     return (
-        <>
+        <div className="p-4">
+            {/* Search Bar & Navigation Filters */}
+            <div className="mb-4 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                <div className="flex items-center gap-4">
+                    <input
+                        type="text"
+                        placeholder="Search..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="px-4 py-1 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-searchBar-background"
+                    />
+                    <select
+                        value={filterCountry}
+                        onChange={(e) => setFilterCountry(e.target.value)}
+                        className="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-searchBar-background"
+                    >
+                        {uniqueCountries.map(country => (
+                            <option key={country} value={country}>
+                                {country === 'all' ? 'All Countries' : country}
+                            </option>
+                        ))}
+                    </select>
+                </div>
+            </div>
+
+            {/* Table */}
             <div className="relative overflow-x-auto rounded-sm shadow-md">
                 <table className="w-full text-sm text-left">
                     <thead className="text-xs uppercase bg-table-headerBackground hover:bg-table-headerHover bg-opacity-20 text-table-header-foreground">
@@ -244,7 +186,7 @@ const GoogleContent: React.FC<GoogleContentProps> = ({ id }) => {
                                 className="bg-table-bodyBackground bg-opacity-30 border-b border-table-body-foreground hover:bg-table-bodyHover hover:bg-opacity-40 transition-colors"
                             >
                                 {row.getVisibleCells().map(cell => (
-                                    <td key={cell.id} className="px-6 py-4 text-gray-400">
+                                    <td key={cell.id} className="px-2 py-1 text-gray-400">
                                         {flexRender(
                                             cell.column.columnDef.cell,
                                             cell.getContext()
@@ -256,18 +198,40 @@ const GoogleContent: React.FC<GoogleContentProps> = ({ id }) => {
                     </tbody>
                 </table>
             </div>
-            <GoogleContentDrawer 
+
+            {/* Pagination */}
+            <div className="mt-4 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                    <span className="text-sm text-gray-500">
+                        Page {table.getState().pagination.pageIndex + 1} of{' '}
+                        {table.getPageCount()}
+                    </span>
+                </div>
+                <div className="flex items-center gap-2">
+                    <Button
+                        onClick={() => table.previousPage()}
+                        disabled={!table.getCanPreviousPage()}
+                        className="border rounded-md disabled:opacity-50 hover:bg-gray-100"
+                    >
+                        Previous
+                    </Button>
+                    <Button
+                        onClick={() => table.nextPage()}
+                        disabled={!table.getCanNextPage()}
+                        className="border rounded-md disabled:opacity-50 hover:bg-gray-100"
+                    >
+                        Next
+                    </Button>
+                </div>
+            </div>
+
+            {/* Drawer */}
+            <GoogleContentDrawer
                 isOpen={isDrawerOpen}
-                onClose={handleCloseDrawer}
-                selectedRow={selectedRow}
-                isEditing={isEditing}
-                editedRow={editedRow}
-                setEditedRow={setEditedRow}
-                handleSave={handleSave}
-                handleEditClick={handleEditClick}
+                onClose={() => setIsDrawerOpen(false)}
+                account={selectedRow}
             />
-            
-        </>
+        </div>
     );
 };
 

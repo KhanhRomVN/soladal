@@ -80,6 +80,8 @@ export default function CloneDrawer({ isOpen, onClose }: CloneDrawerProps) {
                 isFavorite: false,
             };
 
+            console.log(cloneData);
+
             await _POST('/clones', cloneData);
             onClose();
         } catch (error) {

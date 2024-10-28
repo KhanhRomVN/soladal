@@ -14,6 +14,8 @@ import { ContentType } from '@/Context/ContentContext';
 import parse from 'html-react-parser';
 import CreateGroupDrawer from '@/components/Drawer/AddDrawer/CreateGroupDrawer';
 import { Link } from "@tanstack/react-router";
+import { ChevronLeft, ChevronRight } from 'lucide-react';
+
 
 interface AppGroup {
   id: number;
@@ -39,6 +41,13 @@ const Sidebar: React.FC = () => {
   const { setCurrentContent } = useContent();
   const [groups, setGroups] = useState<Group[]>([]);
 
+  const [currentPage, setCurrentPage] = useState(0);
+  const itemsPerPage = 3;
+  const totalPages = Math.ceil(groups.length / itemsPerPage);
+  const startIndex = currentPage * itemsPerPage;
+  const visibleGroups = groups.slice(startIndex, startIndex + itemsPerPage);
+
+
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
 
@@ -50,6 +59,14 @@ const Sidebar: React.FC = () => {
     { id: 5, title: 'Clone', lucideIcon: 'Copy', type: 'clone', bgColor: 'bg-purple-500' },
     { id: 6, title: 'Note', lucideIcon: 'FileText', type: 'note', bgColor: 'bg-pink-500' },
   ];
+
+  const handleNextPage = () => {
+    setCurrentPage(prev => Math.min(prev + 1, totalPages - 1));
+  };
+
+  const handlePrevPage = () => {
+    setCurrentPage(prev => Math.max(prev - 1, 0));
+  };
 
   useEffect(() => {
     fetchGroups();
@@ -140,7 +157,33 @@ const Sidebar: React.FC = () => {
         {/* Group[User] list */}
         {groups.length > 0 && (
           <div className="mt-2">
-            {groups.map((group) => (
+            {groups.length > itemsPerPage && (
+              <div className="flex justify-between items-center mb-2">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={handlePrevPage}
+                disabled={currentPage === 0}
+                className="h-8 w-8 p-0"
+              >
+                <ChevronLeft className="h-4 w-4 text-white" />
+              </Button>
+              {/* Add page number display */}
+              <span className="text-white">
+                {currentPage + 1} / {totalPages}
+              </span>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={handleNextPage}
+                disabled={currentPage >= totalPages - 1}
+                className="h-8 w-8 p-0"
+              >
+                <ChevronRight className="h-4 w-4 text-white" />
+              </Button>
+            </div>
+            )}
+            {visibleGroups.map((group) => (
               <Button
                 key={group.id}
                 variant="ghost"

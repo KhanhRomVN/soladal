@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Drawer from 'react-modern-drawer';
 import { EyeOff, Eye, X, Mail, Lock, Key, Phone, User, Globe, Calendar, Languages, Monitor, Network, FileText, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -21,7 +21,6 @@ interface GoogleDrawerProps {
 }
 
 export default function GoogleDrawer({ isOpen, onClose }: GoogleDrawerProps) {
-    const drawerRef = useRef<HTMLDivElement>(null);
     const [formErrors, setFormErrors] = useState<{ [key: string]: string }>({});
     const [groups, setGroups] = useState<Group[]>([]);
     const [selectedGroupId, setSelectedGroupId] = useState<number | null>(null);
@@ -87,6 +86,8 @@ export default function GoogleDrawer({ isOpen, onClose }: GoogleDrawerProps) {
                 isFavorite: false,
             };
 
+            console.log(googleData);
+
             await _POST('/googles', googleData);
             onClose();
         } catch (error) {
@@ -96,33 +97,33 @@ export default function GoogleDrawer({ isOpen, onClose }: GoogleDrawerProps) {
 
     const fields = [
         // Account Credentials
-        { 
-            key: 'email', 
-            title: 'Email (*)', 
-            placeholder: 'Enter Gmail address', 
-            type: 'email', 
+        {
+            key: 'email',
+            title: 'Email (*)',
+            placeholder: 'Enter Gmail address',
+            type: 'email',
             icon: <Mail size={20} />,
             required: true,
             error: formErrors.email,
-            halfWidth: true 
+            halfWidth: true
         },
         { key: 'password', title: 'Password', placeholder: 'Enter password', type: 'password', icon: <Lock size={20} />, halfWidth: true },
         { key: 'recoveryEmail', title: 'Recovery Email', placeholder: 'Enter recovery email', type: 'email', icon: <Mail size={20} />, halfWidth: true },
         { key: 'twoFactor', title: '2FA', placeholder: 'Enter 2FA code', type: 'text', icon: <Key size={20} />, halfWidth: true },
-        
+
         // Personal Information
         { key: 'displayName', title: 'Display Name', placeholder: 'Enter display name', type: 'text', icon: <User size={20} />, halfWidth: true },
         { key: 'phone', title: 'Phone', placeholder: 'Enter phone number', type: 'tel', icon: <Phone size={20} />, halfWidth: true },
         { key: 'dateOfBirth', title: 'Date of Birth', placeholder: 'YYYY-MM-DD', type: 'date', icon: <Calendar size={20} />, halfWidth: true },
-        
+
         // Regional Settings
         { key: 'country', title: 'Country', placeholder: 'Select country', type: 'text', icon: <Globe size={20} />, halfWidth: true },
         { key: 'language', title: 'Language', placeholder: 'Select language', type: 'text', icon: <Languages size={20} />, halfWidth: true },
-        
+
         // Technical Settings
         { key: 'agent', title: 'User Agent', placeholder: 'Enter user agent', type: 'text', icon: <Monitor size={20} />, halfWidth: true },
         { key: 'proxy', title: 'Proxy', placeholder: 'Enter proxy', type: 'text', icon: <Network size={20} />, halfWidth: true },
-        
+
         // Status
         { key: 'status', title: 'Status', placeholder: 'Enter status', type: 'text', icon: <FileText size={20} />, halfWidth: true },
     ];
@@ -135,7 +136,7 @@ export default function GoogleDrawer({ isOpen, onClose }: GoogleDrawerProps) {
             size={500}
             className="h-full"
         >
-            <div className="p-4 bg-sidebar-primary h-full">
+            <div className="p-4 bg-sidebar-primary h-full flex flex-col">
                 {/* Header */}
                 <div className="flex justify-between items-center mb-6">
                     <Button variant="ghost" onClick={onClose} className="text-gray-400">
@@ -174,7 +175,7 @@ export default function GoogleDrawer({ isOpen, onClose }: GoogleDrawerProps) {
                     </div>
                 </div>
 
-                <div className="space-y-4">
+                <div className="space-y-4 overflow-y-auto flex-1">
                     {/* Title Section */}
                     <div className="border border-gray-800/100 p-4 rounded-lg">
                         <div className="flex items-center gap-3 mb-3">
@@ -237,12 +238,72 @@ export default function GoogleDrawer({ isOpen, onClose }: GoogleDrawerProps) {
                     {/* Additional Info */}
                     <div className="border border-gray-800/100 p-4 rounded-lg space-y-3">
                         <div className="flex items-center gap-2">
+                            <User className="h-4 w-4 text-gray-400" />
+                            <input
+                                type="text"
+                                value={formValues.displayName}
+                                onChange={(e) => handleInputChange('displayName', e.target.value)}
+                                placeholder="Display Name"
+                                className="bg-gray-800 rounded px-2 py-1 w-full"
+                            />
+                        </div>
+                        <div className="flex items-center gap-2">
                             <Phone className="h-4 w-4 text-gray-400" />
                             <input
                                 type="tel"
                                 value={formValues.phone}
                                 onChange={(e) => handleInputChange('phone', e.target.value)}
                                 placeholder="Phone Number"
+                                className="bg-gray-800 rounded px-2 py-1 w-full"
+                            />
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <Calendar className="h-4 w-4 text-gray-400" />
+                            <input
+                                type="date"
+                                value={formValues.dateOfBirth}
+                                onChange={(e) => handleInputChange('dateOfBirth', e.target.value)}
+                                placeholder="Date of Birth"
+                                className="bg-gray-800 rounded px-2 py-1 w-full"
+                            />
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <Globe className="h-4 w-4 text-gray-400" />
+                            <input
+                                type="text"
+                                value={formValues.country}
+                                onChange={(e) => handleInputChange('country', e.target.value)}
+                                placeholder="Country"
+                                className="bg-gray-800 rounded px-2 py-1 w-full"
+                            />
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <Languages className="h-4 w-4 text-gray-400" />
+                            <input
+                                type="text"
+                                value={formValues.language}
+                                onChange={(e) => handleInputChange('language', e.target.value)}
+                                placeholder="Language"
+                                className="bg-gray-800 rounded px-2 py-1 w-full"
+                            />
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <Monitor className="h-4 w-4 text-gray-400" />
+                            <input
+                                type="text"
+                                value={formValues.agent}
+                                onChange={(e) => handleInputChange('agent', e.target.value)}
+                                placeholder="User Agent"
+                                className="bg-gray-800 rounded px-2 py-1 w-full"
+                            />
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <Network className="h-4 w-4 text-gray-400" />
+                            <input
+                                type="text"
+                                value={formValues.proxy}
+                                onChange={(e) => handleInputChange('proxy', e.target.value)}
+                                placeholder="Proxy"
                                 className="bg-gray-800 rounded px-2 py-1 w-full"
                             />
                         </div>
