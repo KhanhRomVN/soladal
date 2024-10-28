@@ -46,6 +46,18 @@ export default function CloneDrawer({ isOpen, onClose }: CloneDrawerProps) {
         fetchGroups();
     }, []);
 
+    const validateEmail = (email: string): boolean => {
+        const emailRegex = /^[a-zA-Z0-9._%+-]+@(?:[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}|outlook\.com|outlook\.[a-zA-Z]{2,}|hotmail\.com|live\.com|msn\.com)$/i;
+        return emailRegex.test(email);
+    };
+
+    const validatePassword = (password: string): boolean => {
+
+        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+        return passwordRegex.test(password);
+    };
+
+
     const fetchGroups = async () => {
         try {
             const groupsData = await _GET('/group/clone');
@@ -66,12 +78,39 @@ export default function CloneDrawer({ isOpen, onClose }: CloneDrawerProps) {
 
     const handleInputChange = (key: string, value: string) => {
         setFormValues(prev => ({ ...prev, [key]: value }));
+        // Clear error when user starts typing
         if (formErrors[key]) {
-            setFormErrors(prev => ({ ...prev, [key]: '' }));
+            setFormErrors(prev => {
+                const newErrors = { ...prev };
+                delete newErrors[key];
+                return newErrors;
+            });
         }
     };
 
     const handleCreateClone = async () => {
+        const newErrors: { [key: string]: string } = {};
+
+        // Validate email
+        if (!formValues.email.trim()) {
+            newErrors.email = 'Email is required';
+        } else if (!validateEmail(formValues.email)) {
+            newErrors.email = 'Please enter a valid email address';
+        }
+
+        // Validate password
+        if (!formValues.password.trim()) {
+            newErrors.password = 'Password is required';
+        } else if (!validatePassword(formValues.password)) {
+            newErrors.password = 'Password must be at least 8 characters and include uppercase, lowercase, number, and special character';
+        }
+
+        // If there are any errors, set them and return
+        if (Object.keys(newErrors).length > 0) {
+            setFormErrors(newErrors);
+            return;
+        }
+
         try {
             const cloneData = {
                 ...formValues,
@@ -80,37 +119,14 @@ export default function CloneDrawer({ isOpen, onClose }: CloneDrawerProps) {
                 isFavorite: false,
             };
 
-            console.log(cloneData);
-
             await _POST('/clones', cloneData);
             onClose();
         } catch (error) {
-            console.error("Error updating clone:", error);
+            console.error("Error creating clone:", error);
         }
     };
 
-    const fields = [
-        // Account Credentials
-        { key: 'email', title: 'Email', placeholder: 'Enter email', type: 'email', icon: <Mail size={20} />, halfWidth: true },
-        { key: 'password', title: 'Password', placeholder: 'Enter password', type: 'password', icon: <Lock size={20} />, halfWidth: true },
-        { key: 'twoFactor', title: '2FA', placeholder: 'Enter 2FA code', type: 'text', icon: <Key size={20} />, halfWidth: true },
 
-        // Personal Information
-        { key: 'displayName', title: 'Display Name', placeholder: 'Enter display name', type: 'text', icon: <User size={20} />, halfWidth: true },
-        { key: 'phone', title: 'Phone', placeholder: 'Enter phone number', type: 'tel', icon: <Phone size={20} />, halfWidth: true },
-        { key: 'dateOfBirth', title: 'Date of Birth', placeholder: 'YYYY-MM-DD', type: 'date', icon: <Calendar size={20} />, halfWidth: true },
-
-        // Regional Settings
-        { key: 'country', title: 'Country', placeholder: 'Select country', type: 'text', icon: <Globe size={20} />, halfWidth: true },
-        { key: 'language', title: 'Language', placeholder: 'Select language', type: 'text', icon: <Languages size={20} />, halfWidth: true },
-
-        // Technical Settings
-        { key: 'agent', title: 'User Agent', placeholder: 'Enter user agent', type: 'text', icon: <Monitor size={20} />, halfWidth: true },
-        { key: 'proxy', title: 'Proxy', placeholder: 'Enter proxy', type: 'text', icon: <Network size={20} />, halfWidth: true },
-
-        // Status
-        { key: 'status', title: 'Status', placeholder: 'Enter status', type: 'text', icon: <FileText size={20} />, halfWidth: true },
-    ];
 
     return (
         <Drawer
@@ -162,25 +178,32 @@ export default function CloneDrawer({ isOpen, onClose }: CloneDrawerProps) {
                 <div className="space-y-4">
                     {/* Account Credentials */}
                     <div className="border border-gray-800/100 p-4 rounded-lg space-y-3">
-                        <div className="flex items-center gap-2">
-                            <Mail className="h-4 w-4 text-gray-400" />
-                            <input
-                                type="email"
-                                value={formValues.email}
-                                onChange={(e) => handleInputChange('email', e.target.value)}
-                                placeholder="Email"
-                                className="bg-gray-800 rounded px-2 py-1 w-full"
-                            />
+                        <div className="flex flex-col gap-1">
+                            <div className="flex items-center gap-2">
+                                <Mail className="h-4 w-4 text-gray-400" />
+                                <input
+                                    type="email"
+                                    value={formValues.email}
+                                    onChange={(e) => handleInputChange('email', e.target.value)}
+                                    placeholder="Email"
+                                    className={`bg-gray-800 rounded px-2 py-1 w-full ${formErrors.email ? 'border border-red-500' : ''}`}
+                                />
+                            </div>
+                            {formErrors.email && <span className="text-red-500 text-sm ml-6">{formErrors.email}</span>}
                         </div>
-                        <div className="flex items-center gap-2">
-                            <Lock className="h-4 w-4 text-gray-400" />
-                            <input
-                                type="password"
-                                value={formValues.password}
-                                onChange={(e) => handleInputChange('password', e.target.value)}
-                                placeholder="Password"
-                                className="bg-gray-800 rounded px-2 py-1 w-full"
-                            />
+
+                        <div className="flex flex-col gap-1">
+                            <div className="flex items-center gap-2">
+                                <Lock className="h-4 w-4 text-gray-400" />
+                                <input
+                                    type="password"
+                                    value={formValues.password}
+                                    onChange={(e) => handleInputChange('password', e.target.value)}
+                                    placeholder="Password"
+                                    className={`bg-gray-800 rounded px-2 py-1 w-full ${formErrors.password ? 'border border-red-500' : ''}`}
+                                />
+                            </div>
+                            {formErrors.password && <span className="text-red-500 text-sm ml-6">{formErrors.password}</span>}
                         </div>
                         <div className="flex items-center gap-2">
                             <Key className="h-4 w-4 text-gray-400" />

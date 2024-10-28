@@ -46,7 +46,15 @@ export default function GoogleDrawer({ isOpen, onClose }: GoogleDrawerProps) {
         fetchGroups();
     }, []);
 
+    const validateEmail = (email: string): boolean => {
+        const gmailRegex = /^[a-zA-Z0-9._%+-]+@gmail\.com$/;
+        return gmailRegex.test(email);
+    };
 
+    const validatePassword = (password: string): boolean => {
+        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+        return passwordRegex.test(password);
+    };
 
     const fetchGroups = async () => {
         try {
@@ -69,15 +77,40 @@ export default function GoogleDrawer({ isOpen, onClose }: GoogleDrawerProps) {
     const handleInputChange = (key: string, value: string) => {
         setFormValues(prev => ({ ...prev, [key]: value }));
         if (formErrors[key]) {
-            setFormErrors(prev => ({ ...prev, [key]: '' }));
+            setFormErrors(prev => {
+                const newErrors = { ...prev };
+                delete newErrors[key];
+                return newErrors;
+            });
         }
     };
 
     const handleCreateGoogle = async () => {
+        const newErrors: { [key: string]: string } = {};
+
+        // Validate email
         if (!formValues.email.trim()) {
-            setFormErrors(prev => ({ ...prev, email: 'Email is required' }));
+            newErrors.email = 'Email is required';
+        } else if (!validateEmail(formValues.email)) {
+            newErrors.email = 'Must be a valid Gmail address (@gmail.com)';
+        }
+
+        // Validate password
+        if (!formValues.password.trim()) {
+            newErrors.password = 'Password is required';
+        } else if (!validatePassword(formValues.password)) {
+            newErrors.password = 'Password must be at least 8 characters and include uppercase, lowercase, number, and special character';
+        }
+
+        // If there are any errors, set them and return
+        if (Object.keys(newErrors).length > 0) {
+            setFormErrors(newErrors);
             return;
         }
+
+        // Clear any existing errors
+        setFormErrors({});
+
         try {
             const googleData = {
                 ...formValues,
@@ -86,47 +119,12 @@ export default function GoogleDrawer({ isOpen, onClose }: GoogleDrawerProps) {
                 isFavorite: false,
             };
 
-            console.log(googleData);
-
             await _POST('/googles', googleData);
             onClose();
         } catch (error) {
-            console.error("Error updating Google account:", error);
+            console.error("Error creating Google account:", error);
         }
     };
-
-    const fields = [
-        // Account Credentials
-        {
-            key: 'email',
-            title: 'Email (*)',
-            placeholder: 'Enter Gmail address',
-            type: 'email',
-            icon: <Mail size={20} />,
-            required: true,
-            error: formErrors.email,
-            halfWidth: true
-        },
-        { key: 'password', title: 'Password', placeholder: 'Enter password', type: 'password', icon: <Lock size={20} />, halfWidth: true },
-        { key: 'recoveryEmail', title: 'Recovery Email', placeholder: 'Enter recovery email', type: 'email', icon: <Mail size={20} />, halfWidth: true },
-        { key: 'twoFactor', title: '2FA', placeholder: 'Enter 2FA code', type: 'text', icon: <Key size={20} />, halfWidth: true },
-
-        // Personal Information
-        { key: 'displayName', title: 'Display Name', placeholder: 'Enter display name', type: 'text', icon: <User size={20} />, halfWidth: true },
-        { key: 'phone', title: 'Phone', placeholder: 'Enter phone number', type: 'tel', icon: <Phone size={20} />, halfWidth: true },
-        { key: 'dateOfBirth', title: 'Date of Birth', placeholder: 'YYYY-MM-DD', type: 'date', icon: <Calendar size={20} />, halfWidth: true },
-
-        // Regional Settings
-        { key: 'country', title: 'Country', placeholder: 'Select country', type: 'text', icon: <Globe size={20} />, halfWidth: true },
-        { key: 'language', title: 'Language', placeholder: 'Select language', type: 'text', icon: <Languages size={20} />, halfWidth: true },
-
-        // Technical Settings
-        { key: 'agent', title: 'User Agent', placeholder: 'Enter user agent', type: 'text', icon: <Monitor size={20} />, halfWidth: true },
-        { key: 'proxy', title: 'Proxy', placeholder: 'Enter proxy', type: 'text', icon: <Network size={20} />, halfWidth: true },
-
-        // Status
-        { key: 'status', title: 'Status', placeholder: 'Enter status', type: 'text', icon: <FileText size={20} />, halfWidth: true },
-    ];
 
     return (
         <Drawer
@@ -178,40 +176,46 @@ export default function GoogleDrawer({ isOpen, onClose }: GoogleDrawerProps) {
                 <div className="space-y-4 overflow-y-auto flex-1">
                     {/* Title Section */}
                     <div className="border border-gray-800/100 p-4 rounded-lg">
-                        <div className="flex items-center gap-3 mb-3">
-                            <div className="p-2 bg-purple-500/20 rounded-lg">
-                                <Mail className="h-5 w-5 text-purple-400" />
+                        <div className="flex flex-col gap-1">
+                            <div className="flex items-center gap-3">
+                                <div className="p-2 bg-purple-500/20 rounded-lg">
+                                    <Mail className="h-5 w-5 text-purple-400" />
+                                </div>
+                                <input
+                                    type="email"
+                                    value={formValues.email}
+                                    onChange={(e) => handleInputChange('email', e.target.value)}
+                                    placeholder="Gmail Address"
+                                    className={`bg-gray-800 rounded px-2 py-1 w-full ${formErrors.email ? 'border border-red-500' : ''}`}
+                                />
                             </div>
-                            <input
-                                type="email"
-                                value={formValues.email}
-                                onChange={(e) => handleInputChange('email', e.target.value)}
-                                placeholder="Gmail Address"
-                                className="bg-gray-800 rounded px-2 py-1 w-full"
-                            />
+                            {formErrors.email && <span className="text-red-500 text-sm ml-11">{formErrors.email}</span>}
                         </div>
                     </div>
 
                     {/* Account Credentials */}
                     <div className="border border-gray-800/100 p-4 rounded-lg space-y-3">
-                        <div className="flex items-center gap-2">
-                            <Lock className="h-4 w-4 text-gray-400" />
-                            <div className="relative w-full">
-                                <input
-                                    type={showPassword ? "text" : "password"}
-                                    value={formValues.password}
-                                    onChange={(e) => handleInputChange('password', e.target.value)}
-                                    placeholder="Password"
-                                    className="bg-gray-800 rounded px-2 py-1 w-full pr-8"
-                                />
-                                <button
-                                    type="button"
-                                    onClick={() => setShowPassword(!showPassword)}
-                                    className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-300"
-                                >
-                                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                                </button>
+                        <div className="flex flex-col gap-1">
+                            <div className="flex items-center gap-2">
+                                <Lock className="h-4 w-4 text-gray-400" />
+                                <div className="relative w-full">
+                                    <input
+                                        type={showPassword ? "text" : "password"}
+                                        value={formValues.password}
+                                        onChange={(e) => handleInputChange('password', e.target.value)}
+                                        placeholder="Password"
+                                        className={`bg-gray-800 rounded px-2 py-1 w-full pr-8 ${formErrors.password ? 'border border-red-500' : ''}`}
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowPassword(!showPassword)}
+                                        className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-300"
+                                    >
+                                        {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                                    </button>
+                                </div>
                             </div>
+                            {formErrors.password && <span className="text-red-500 text-sm ml-6">{formErrors.password}</span>}
                         </div>
                         <div className="flex items-center gap-2">
                             <Mail className="h-4 w-4 text-gray-400" />
