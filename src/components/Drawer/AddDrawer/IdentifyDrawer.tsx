@@ -82,7 +82,7 @@ export default function IdentifyDrawer({ isOpen, onClose }: IdentifyDrawerProps)
 
     const fetchGroups = async () => {
         try {
-            const groupsData = await _GET('/group');
+            const groupsData = await _GET('/group/identify');
             if (Array.isArray(groupsData) && groupsData.length > 0) {
                 setGroups(groupsData);
                 const allGroupsId = groupsData.find((group: Group) => group.title === "All Groups")?.id;
@@ -105,16 +105,18 @@ export default function IdentifyDrawer({ isOpen, onClose }: IdentifyDrawerProps)
         }
     };
 
-    const handleUpdateIdentity = async () => {
+    const handleCreateIdentity = async () => {
         try {
             const identityData = {
                 ...formValues,
                 groupId: selectedGroupId ? selectedGroupId : -1,
-                type: 'identity',
+                type: 'identify',
                 isFavorite: false,
             };
 
-            await _POST('/identities/update', identityData);
+            console.log(identityData);
+
+            await _POST('/identities', identityData);
             onClose();
         } catch (error) {
             console.error("Error updating identity:", error);
@@ -203,7 +205,7 @@ export default function IdentifyDrawer({ isOpen, onClose }: IdentifyDrawerProps)
                         </div>
                         <Button
                             className="bg-purple-500 hover:bg-purple-600"
-                            onClick={handleUpdateIdentity}
+                            onClick={handleCreateIdentity}
                         >
                             Save Changes
                         </Button>

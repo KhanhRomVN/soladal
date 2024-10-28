@@ -38,7 +38,7 @@ export default function NoteDrawer({ isOpen, onClose }: NoteDrawerProps) {
 
     const fetchGroups = async () => {
         try {
-            const groupsData = await _GET('/group');
+            const groupsData = await _GET('/group/note');
             if (Array.isArray(groupsData) && groupsData.length > 0) {
                 setGroups(groupsData);
                 const allGroupsId = groupsData.find((group: Group) => group.title === "All Groups")?.id;
@@ -61,7 +61,7 @@ export default function NoteDrawer({ isOpen, onClose }: NoteDrawerProps) {
         }
     };
 
-    const handleUpdateNote = async () => {
+    const handleCreateNote = async () => {
         if (!formValues.title.trim()) {
             setFormErrors(prev => ({ ...prev, title: 'Title is required' }));
             return;
@@ -75,7 +75,7 @@ export default function NoteDrawer({ isOpen, onClose }: NoteDrawerProps) {
                 isFavorite: false,
             };
 
-            await _POST('/notes/update', noteData);
+            await _POST('/notes', noteData);
             onClose();
         } catch (error) {
             console.error("Error updating note:", error);
@@ -134,7 +134,7 @@ export default function NoteDrawer({ isOpen, onClose }: NoteDrawerProps) {
                         </div>
                         <Button
                             className="bg-purple-500 hover:bg-purple-600"
-                            onClick={handleUpdateNote}
+                            onClick={handleCreateNote}
                         >
                             Save Changes
                         </Button>

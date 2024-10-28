@@ -42,7 +42,7 @@ export default function CardDrawer({ isOpen, onClose }: CardDrawerProps) {
 
     const fetchGroups = async () => {
         try {
-            const groupsData = await _GET('/group');
+            const groupsData = await _GET('/group/card');
             if (Array.isArray(groupsData) && groupsData.length > 0) {
                 setGroups(groupsData);
                 const allGroupsId = groupsData.find((group: Group) => group.title === "All Groups")?.id;
@@ -66,7 +66,7 @@ export default function CardDrawer({ isOpen, onClose }: CardDrawerProps) {
         }
     };
 
-    const handleUpdateCard = async () => {
+    const handleCreateCard = async () => {
         if (!formValues.title.trim()) {
             setFormErrors(prev => ({ ...prev, title: 'Title is required' }));
             return;
@@ -84,7 +84,7 @@ export default function CardDrawer({ isOpen, onClose }: CardDrawerProps) {
                 type: 'card',
             };
 
-            await _POST('/cards/update', cardData);
+            await _POST('/cards', cardData);
             onClose();
         } catch (error) {
             console.error("Error updating card:", error);
@@ -147,7 +147,7 @@ export default function CardDrawer({ isOpen, onClose }: CardDrawerProps) {
                         </div>
                         <Button
                             className="bg-purple-500 hover:bg-purple-600"
-                            onClick={handleUpdateCard}
+                            onClick={handleCreateCard}
                         >
                             Save Changes
                         </Button>

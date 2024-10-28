@@ -45,7 +45,8 @@ export default function AccountDrawer({ isOpen, onClose }: AccountDrawerProps) {
 
     const fetchGroups = async () => {
         try {
-            const groupsData = await _GET('/group');
+            const groupsData = await _GET('/group/account');
+            console.log(groupsData);
             if (Array.isArray(groupsData) && groupsData.length > 0) {
                 setGroups(groupsData);
                 const allGroupsId = groupsData.find((group: Group) => group.title === "All Groups")?.id;
@@ -69,7 +70,7 @@ export default function AccountDrawer({ isOpen, onClose }: AccountDrawerProps) {
         setShowPassword(!showPassword);
     };
 
-    const handleUpdateAccount = async () => {
+    const handleCreateAccount = async () => {
         if (!formValues.title.trim()) {
             setFormErrors(prev => ({ ...prev, title: 'Title is required' }));
             return;
@@ -89,7 +90,7 @@ export default function AccountDrawer({ isOpen, onClose }: AccountDrawerProps) {
                 type: 'account',
             };
 
-            await _POST('/accounts/update', accountData);
+            await _POST('/accounts', accountData);
             onClose();
         } catch (error) {
             console.error("Error updating account:", error);
@@ -162,7 +163,7 @@ export default function AccountDrawer({ isOpen, onClose }: AccountDrawerProps) {
                         </div>
                         <Button
                             className="bg-purple-500 hover:bg-purple-600"
-                            onClick={handleUpdateAccount}
+                            onClick={handleCreateAccount}
                         >
                             Save Changes
                         </Button>

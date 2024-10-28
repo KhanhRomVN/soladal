@@ -48,7 +48,7 @@ export default function CloneDrawer({ isOpen, onClose }: CloneDrawerProps) {
 
     const fetchGroups = async () => {
         try {
-            const groupsData = await _GET('/group');
+            const groupsData = await _GET('/group/clone');
             if (Array.isArray(groupsData) && groupsData.length > 0) {
                 setGroups(groupsData);
                 const allGroupsId = groupsData.find((group: Group) => group.title === "All Groups")?.id;
@@ -71,7 +71,7 @@ export default function CloneDrawer({ isOpen, onClose }: CloneDrawerProps) {
         }
     };
 
-    const handleUpdateClone = async () => {
+    const handleCreateClone = async () => {
         try {
             const cloneData = {
                 ...formValues,
@@ -80,7 +80,7 @@ export default function CloneDrawer({ isOpen, onClose }: CloneDrawerProps) {
                 isFavorite: false,
             };
 
-            await _POST('/clones/update', cloneData);
+            await _POST('/clones', cloneData);
             onClose();
         } catch (error) {
             console.error("Error updating clone:", error);
@@ -92,20 +92,20 @@ export default function CloneDrawer({ isOpen, onClose }: CloneDrawerProps) {
         { key: 'email', title: 'Email', placeholder: 'Enter email', type: 'email', icon: <Mail size={20} />, halfWidth: true },
         { key: 'password', title: 'Password', placeholder: 'Enter password', type: 'password', icon: <Lock size={20} />, halfWidth: true },
         { key: 'twoFactor', title: '2FA', placeholder: 'Enter 2FA code', type: 'text', icon: <Key size={20} />, halfWidth: true },
-        
+
         // Personal Information
         { key: 'displayName', title: 'Display Name', placeholder: 'Enter display name', type: 'text', icon: <User size={20} />, halfWidth: true },
         { key: 'phone', title: 'Phone', placeholder: 'Enter phone number', type: 'tel', icon: <Phone size={20} />, halfWidth: true },
         { key: 'dateOfBirth', title: 'Date of Birth', placeholder: 'YYYY-MM-DD', type: 'date', icon: <Calendar size={20} />, halfWidth: true },
-        
+
         // Regional Settings
         { key: 'country', title: 'Country', placeholder: 'Select country', type: 'text', icon: <Globe size={20} />, halfWidth: true },
         { key: 'language', title: 'Language', placeholder: 'Select language', type: 'text', icon: <Languages size={20} />, halfWidth: true },
-        
+
         // Technical Settings
         { key: 'agent', title: 'User Agent', placeholder: 'Enter user agent', type: 'text', icon: <Monitor size={20} />, halfWidth: true },
         { key: 'proxy', title: 'Proxy', placeholder: 'Enter proxy', type: 'text', icon: <Network size={20} />, halfWidth: true },
-        
+
         // Status
         { key: 'status', title: 'Status', placeholder: 'Enter status', type: 'text', icon: <FileText size={20} />, halfWidth: true },
     ];
@@ -150,7 +150,7 @@ export default function CloneDrawer({ isOpen, onClose }: CloneDrawerProps) {
                         </div>
                         <Button
                             className="bg-purple-500 hover:bg-purple-600"
-                            onClick={handleUpdateClone}
+                            onClick={handleCreateClone}
                         >
                             Save Changes
                         </Button>

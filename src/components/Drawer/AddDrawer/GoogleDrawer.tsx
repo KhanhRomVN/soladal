@@ -51,7 +51,7 @@ export default function GoogleDrawer({ isOpen, onClose }: GoogleDrawerProps) {
 
     const fetchGroups = async () => {
         try {
-            const groupsData = await _GET('/group');
+            const groupsData = await _GET('/group/google');
             if (Array.isArray(groupsData) && groupsData.length > 0) {
                 setGroups(groupsData);
                 const allGroupsId = groupsData.find((group: Group) => group.title === "All Groups")?.id;
@@ -74,7 +74,7 @@ export default function GoogleDrawer({ isOpen, onClose }: GoogleDrawerProps) {
         }
     };
 
-    const handleUpdateGoogle = async () => {
+    const handleCreateGoogle = async () => {
         if (!formValues.email.trim()) {
             setFormErrors(prev => ({ ...prev, email: 'Email is required' }));
             return;
@@ -87,7 +87,7 @@ export default function GoogleDrawer({ isOpen, onClose }: GoogleDrawerProps) {
                 isFavorite: false,
             };
 
-            await _POST('/googles/update', googleData);
+            await _POST('/googles', googleData);
             onClose();
         } catch (error) {
             console.error("Error updating Google account:", error);
@@ -167,7 +167,7 @@ export default function GoogleDrawer({ isOpen, onClose }: GoogleDrawerProps) {
                         </div>
                         <Button
                             className="bg-purple-500 hover:bg-purple-600"
-                            onClick={handleUpdateGoogle}
+                            onClick={handleCreateGoogle}
                         >
                             Save Changes
                         </Button>
