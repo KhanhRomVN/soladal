@@ -136,7 +136,7 @@ export default function CloneDrawer({ isOpen, onClose }: CloneDrawerProps) {
             size={500}
             className="h-full"
         >
-            <div className="p-4 bg-sidebar-primary h-full">
+            <div className="p-4 bg-sidebar-primary h-full overflow-y-auto custom-scrollbar">
                 {/* Header */}
                 <div className="flex justify-between items-center mb-6">
                     <Button variant="ghost" onClick={onClose} className="text-gray-400">
@@ -175,7 +175,7 @@ export default function CloneDrawer({ isOpen, onClose }: CloneDrawerProps) {
                     </div>
                 </div>
 
-                <div className="space-y-4">
+                <div className="space-y-4 ">
                     {/* Account Credentials */}
                     <div className="border border-gray-800/100 p-4 rounded-lg space-y-3">
                         <div className="flex flex-col gap-1">

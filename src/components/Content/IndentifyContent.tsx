@@ -90,7 +90,7 @@ const IdentifyContent: React.FC<IdentifyContentProps> = ({ id }) => {
     return (
         <div className="flex">
             {/* List Identities */}
-            <div className="w-1/3 pr-2 border-r border-gray-700/50">
+            <div className="w-1/3 pr-2 border-r border-gray-700/50 ">
                 {identities.length === 0 ? (
                     <p>No identities found.</p>
                 ) : (
@@ -122,7 +122,7 @@ const IdentifyContent: React.FC<IdentifyContentProps> = ({ id }) => {
             </div>
 
             {/* Identity Selected Content */}
-            <div className="w-2/3 pl-4 shadow-[-10px_0_15px_-3px_rgba(0,0,0,0.3)]">
+            <div className="w-2/3 pl-4 shadow-[-10px_0_15px_-3px_rgba(0,0,0,0.3)] overflow-hidden custom-scrollbar">
                 {selectedIdentity ? (
                     <div className="p-2">
                         <div className="flex justify-between items-center mb-6">

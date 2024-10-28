@@ -173,7 +173,7 @@ export default function GoogleDrawer({ isOpen, onClose }: GoogleDrawerProps) {
                     </div>
                 </div>
 
-                <div className="space-y-4 overflow-y-auto flex-1">
+                <div className="space-y-4 overflow-y-auto flex-1 custom-scrollbar">
                     {/* Title Section */}
                     <div className="border border-gray-800/100 p-4 rounded-lg">
                         <div className="flex flex-col gap-1">

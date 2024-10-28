@@ -162,7 +162,7 @@ export default function IdentifyDrawer({ isOpen, onClose }: IdentifyDrawerProps)
             size={500}
             className="h-full"
         >
-            <div className="p-4 bg-sidebar-primary h-full overflow-y-auto scrollbar-hide">
+            <div className="p-4 bg-sidebar-primary h-full overflow-y-auto custom-scrollbar">
                 {/* Header */}
                 <div className="flex justify-between items-center mb-6">
                     <Button variant="ghost" onClick={onClose} className="text-gray-400">
@@ -201,7 +201,9 @@ export default function IdentifyDrawer({ isOpen, onClose }: IdentifyDrawerProps)
                     </div>
                 </div>
 
-                <div className="space-y-4 overflow-y-auto flex-1">
+                        
+
+                <div className="space-y-4">
                     {/* Personal Information */}
                     <div className="border border-gray-800/100 p-4 rounded-lg">
                         <div className="flex flex-col gap-1">
