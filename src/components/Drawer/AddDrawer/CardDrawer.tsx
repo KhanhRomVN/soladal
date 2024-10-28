@@ -62,15 +62,43 @@ export default function CardDrawer({ isOpen, onClose }: CardDrawerProps) {
         setFormValues(prev => ({ ...prev, [key]: value }));
         // Clear error when user starts typing
         if (formErrors[key]) {
-            setFormErrors(prev => ({ ...prev, [key]: '' }));
+            setFormErrors(prev => {
+                const newErrors = { ...prev };
+                delete newErrors[key];
+                return newErrors;
+            });
         }
     };
 
     const handleCreateCard = async () => {
+        const newErrors: { [key: string]: string } = {};
+        
+        // Validate all required fields
         if (!formValues.title.trim()) {
-            setFormErrors(prev => ({ ...prev, title: 'Title is required' }));
+            newErrors.title = 'Title is required';
+        }
+        if (!formValues.fullName.trim()) {
+            newErrors.fullName = 'Full Name is required';
+        }
+        if (!formValues.cardNumber.trim()) {
+            newErrors.cardNumber = 'Card Number is required';
+        }
+        if (!formValues.expirationDate.trim()) {
+            newErrors.expirationDate = 'Expiration Date is required';
+        }
+        if (!formValues.pin.trim()) {
+            newErrors.pin = 'PIN is required';
+        }
+
+        // If there are any errors, set them and return
+        if (Object.keys(newErrors).length > 0) {
+            setFormErrors(newErrors);
             return;
         }
+
+        // Clear any existing errors
+        setFormErrors({});
+
         try {
             const cardData = {
                 title: formValues.title,
@@ -87,7 +115,7 @@ export default function CardDrawer({ isOpen, onClose }: CardDrawerProps) {
             await _POST('/cards', cardData);
             onClose();
         } catch (error) {
-            console.error("Error updating card:", error);
+            console.error("Error creating card:", error);
         }
     };
 
@@ -157,65 +185,80 @@ export default function CardDrawer({ isOpen, onClose }: CardDrawerProps) {
                 <div className="space-y-4">
                     {/* Title Section */}
                     <div className="border border-gray-800/100 p-4 rounded-lg">
-                        <div className="flex items-center gap-3 mb-3">
-                            <div className="p-2 bg-purple-500/20 rounded-lg">
-                                <CreditCard className="h-5 w-5 text-purple-400" />
+                        <div className="flex flex-col gap-1">
+                            <div className="flex items-center gap-3">
+                                <div className="p-2 bg-purple-500/20 rounded-lg">
+                                    <CreditCard className="h-5 w-5 text-purple-400" />
+                                </div>
+                                <input
+                                    type="text"
+                                    value={formValues.title}
+                                    onChange={(e) => handleInputChange('title', e.target.value)}
+                                    placeholder="Card Title"
+                                    className={`bg-gray-800 rounded px-2 py-1 w-full ${formErrors.title ? 'border border-red-500' : ''}`}
+                                />
                             </div>
-                            <input
-                                type="text"
-                                value={formValues.title}
-                                onChange={(e) => handleInputChange('title', e.target.value)}
-                                placeholder="Card Title"
-                                className="bg-gray-800 rounded px-2 py-1 w-full"
-                            />
+                            {formErrors.title && <span className="text-red-500 text-sm ml-11">{formErrors.title}</span>}
                         </div>
                     </div>
 
                     {/* Card Details */}
                     <div className="border border-gray-800/100 p-4 rounded-lg space-y-3">
-                        <div className="flex items-center gap-2">
-                            <User className="h-4 w-4 text-gray-400" />
-                            <input
-                                type="text"
-                                value={formValues.fullName}
-                                onChange={(e) => handleInputChange('fullName', e.target.value)}
-                                placeholder="Full Name"
-                                className="bg-gray-800 rounded px-2 py-1 w-full"
-                            />
+                        <div className="flex flex-col gap-1">
+                            <div className="flex items-center gap-2">
+                                <User className="h-4 w-4 text-gray-400" />
+                                <input
+                                    type="text"
+                                    value={formValues.fullName}
+                                    onChange={(e) => handleInputChange('fullName', e.target.value)}
+                                    placeholder="Full Name"
+                                    className={`bg-gray-800 rounded px-2 py-1 w-full ${formErrors.fullName ? 'border border-red-500' : ''}`}
+                                />
+                            </div>
+                            {formErrors.fullName && <span className="text-red-500 text-sm ml-6">{formErrors.fullName}</span>}
                         </div>
-                        <div className="flex items-center gap-2">
-                            <CreditCard className="h-4 w-4 text-gray-400" />
-                            <input
-                                type="text"
-                                value={formValues.cardNumber}
-                                onChange={(e) => handleInputChange('cardNumber', e.target.value)}
-                                placeholder="Card Number"
-                                className="bg-gray-800 rounded px-2 py-1 w-full"
-                            />
+                        <div className="flex flex-col gap-1">
+                            <div className="flex items-center gap-2">
+                                <CreditCard className="h-4 w-4 text-gray-400" />
+                                <input
+                                    type="text"
+                                    value={formValues.cardNumber}
+                                    onChange={(e) => handleInputChange('cardNumber', e.target.value)}
+                                    placeholder="Card Number"
+                                    className={`bg-gray-800 rounded px-2 py-1 w-full ${formErrors.cardNumber ? 'border border-red-500' : ''}`}
+                                />
+                            </div>
+                            {formErrors.cardNumber && <span className="text-red-500 text-sm ml-6">{formErrors.cardNumber}</span>}
                         </div>
-                        <div className="flex items-center gap-2">
-                            <Calendar className="h-4 w-4 text-gray-400" />
-                            <input
-                                type="text"
-                                value={formValues.expirationDate}
-                                onChange={(e) => handleInputChange('expirationDate', e.target.value)}
-                                placeholder="MM/YY"
-                                className="bg-gray-800 rounded px-2 py-1 w-full"
-                            />
+                        <div className="flex flex-col gap-1">
+                            <div className="flex items-center gap-2">
+                                <Calendar className="h-4 w-4 text-gray-400" />
+                                <input
+                                    type="text"
+                                    value={formValues.expirationDate}
+                                    onChange={(e) => handleInputChange('expirationDate', e.target.value)}
+                                    placeholder="MM/YY"
+                                    className={`bg-gray-800 rounded px-2 py-1 w-full ${formErrors.expirationDate ? 'border border-red-500' : ''}`}
+                                />
+                            </div>
+                            {formErrors.expirationDate && <span className="text-red-500 text-sm ml-6">{formErrors.expirationDate}</span>}
                         </div>
                     </div>
 
                     {/* Security Info */}
                     <div className="border border-gray-800/100 p-4 rounded-lg space-y-3">
-                        <div className="flex items-center gap-2">
-                            <KeyRound className="h-4 w-4 text-gray-400" />
-                            <input
-                                type="password"
-                                value={formValues.pin}
-                                onChange={(e) => handleInputChange('pin', e.target.value)}
-                                placeholder="PIN"
-                                className="bg-gray-800 rounded px-2 py-1 w-full"
-                            />
+                        <div className="flex flex-col gap-1">
+                            <div className="flex items-center gap-2">
+                                <KeyRound className="h-4 w-4 text-gray-400" />
+                                <input
+                                    type="password"
+                                    value={formValues.pin}
+                                    onChange={(e) => handleInputChange('pin', e.target.value)}
+                                    placeholder="PIN"
+                                    className={`bg-gray-800 rounded px-2 py-1 w-full ${formErrors.pin ? 'border border-red-500' : ''}`}
+                                />
+                            </div>
+                            {formErrors.pin && <span className="text-red-500 text-sm ml-6">{formErrors.pin}</span>}
                         </div>
                         <div className="pt-2 border-t border-gray-700">
                             <div className="flex items-center gap-2 mb-2">
