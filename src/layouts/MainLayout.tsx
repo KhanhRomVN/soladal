@@ -15,7 +15,7 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
                     <div className="flex flex-1 overflow-hidden">
                         <Sidebar />
                         <div className="flex-1 flex flex-col">
-                            <main className="flex-1 overflow-auto">{children}</main>
+                            <main className="flex-1 overflow-auto custom-scrollbar">{children}</main>
                         </div>
                     </div>
                 </div>

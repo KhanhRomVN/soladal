@@ -4,14 +4,13 @@ import 'react-modern-drawer/dist/index.css';
 import { Mail, UserCircle, KeyRound, Shield, Phone, StickyNote, Globe, Calendar, X, EyeOff, Eye } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
-interface GoogleAccount {
+interface CloneAccount {
     id: number;
     userId: number;
     type: string;
     groupId: number;
     email: string;
     password: string;
-    recoveryEmail: string;
     twoFactor: string;
     phone: string;
     displayName: string;
@@ -27,13 +26,13 @@ interface GoogleAccount {
     updatedAt: string;
 }
 
-interface GoogleContentDrawerProps {
+interface EditCloneContentDrawerProps {
     isOpen: boolean;
     onClose: () => void;
-    account: GoogleAccount | null;
+    account: CloneAccount | null;
 }
 
-const GoogleContentDrawer: React.FC<GoogleContentDrawerProps> = ({
+const EditCloneContentDrawer: React.FC<EditCloneContentDrawerProps> = ({
     isOpen,
     onClose,
     account
@@ -76,15 +75,6 @@ const GoogleContentDrawer: React.FC<GoogleContentDrawerProps> = ({
                                 type="email"
                                 defaultValue={account.email}
                                 placeholder="Email"
-                                className="bg-gray-800 rounded px-2 py-1 w-full"
-                            />
-                        </div>
-                        <div className="flex items-center gap-2">
-                            <Mail className="h-4 w-4 text-gray-400" />
-                            <input
-                                type="email"
-                                defaultValue={account.recoveryEmail}
-                                placeholder="Recovery Email"
                                 className="bg-gray-800 rounded px-2 py-1 w-full"
                             />
                         </div>
@@ -204,4 +194,4 @@ const GoogleContentDrawer: React.FC<GoogleContentDrawerProps> = ({
     );
 };
 
-export default GoogleContentDrawer;
+export default EditCloneContentDrawer;

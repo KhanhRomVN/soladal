@@ -1,8 +1,7 @@
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Drawer from 'react-modern-drawer';
-import { 
-    X, User, Calendar, MapPin, CreditCard, Car, Phone, Mail, Lock, 
-    Key, Briefcase, Building2, FileText, UserCircle2, Globe, ChevronDown
+import {
+    X, User, Calendar, MapPin, CreditCard, Car, Phone, Mail, Briefcase, FileText, Globe, ChevronDown, ChevronUp
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { _GET, _POST } from '@/utils/auth_api';
@@ -24,10 +23,9 @@ interface IdentifyDrawerProps {
 }
 
 export default function IdentifyDrawer({ isOpen, onClose }: IdentifyDrawerProps) {
-    const drawerRef = useRef<HTMLDivElement>(null);
     const [formErrors, setFormErrors] = useState<{ [key: string]: string }>({});
     const [groups, setGroups] = useState<Group[]>([]);
-    
+
     const [selectedGroupId, setSelectedGroupId] = useState<number | null>(null);
 
     const [formValues, setFormValues] = useState({
@@ -74,15 +72,27 @@ export default function IdentifyDrawer({ isOpen, onClose }: IdentifyDrawerProps)
         notes: '',
     });
 
+    const [expandedSections, setExpandedSections] = useState({
+        job: false,
+        passport: false,
+        idCard: false,
+        drivingLicense: false
+    });
+
+    const toggleSection = (section: keyof typeof expandedSections) => {
+        setExpandedSections(prev => ({
+            ...prev,
+            [section]: !prev[section]
+        }));
+    };
+
     useEffect(() => {
         fetchGroups();
     }, []);
 
-
-
     const fetchGroups = async () => {
         try {
-            const groupsData = await _GET('/group');
+            const groupsData = await _GET('/group/identify');
             if (Array.isArray(groupsData) && groupsData.length > 0) {
                 setGroups(groupsData);
                 const allGroupsId = groupsData.find((group: Group) => group.title === "All Groups")?.id;
@@ -101,67 +111,48 @@ export default function IdentifyDrawer({ isOpen, onClose }: IdentifyDrawerProps)
     const handleInputChange = (key: string, value: string) => {
         setFormValues(prev => ({ ...prev, [key]: value }));
         if (formErrors[key]) {
-            setFormErrors(prev => ({ ...prev, [key]: '' }));
+            setFormErrors(prev => {
+                const newErrors = { ...prev };
+                delete newErrors[key];
+                return newErrors;
+            });
         }
     };
 
-    const handleUpdateIdentity = async () => {
+    const handleCreateIdentity = async () => {
+        const newErrors: { [key: string]: string } = {};
+
+        // Validate required fields
+        if (!formValues.firstname.trim()) {
+            newErrors.firstname = 'First Name is required';
+        }
+        if (!formValues.lastname.trim()) {
+            newErrors.lastname = 'Last Name is required';
+        }
+
+        // If there are any errors, set them and return
+        if (Object.keys(newErrors).length > 0) {
+            setFormErrors(newErrors);
+            return;
+        }
+
+        // Clear any existing errors
+        setFormErrors({});
+
         try {
             const identityData = {
                 ...formValues,
                 groupId: selectedGroupId ? selectedGroupId : -1,
-                type: 'identity',
+                type: 'identify',
                 isFavorite: false,
             };
 
-            await _POST('/identities/update', identityData);
+            await _POST('/identities', identityData);
             onClose();
         } catch (error) {
-            console.error("Error updating identity:", error);
+            console.error("Error creating identity:", error);
         }
     };
-
-    const fields = [
-        // Personal Information
-        { key: 'firstname', title: 'First Name', placeholder: 'Enter first name', type: 'text', icon: <User size={20} />, halfWidth: true },
-        { key: 'lastname', title: 'Last Name', placeholder: 'Enter last name', type: 'text', icon: <User size={20} />, halfWidth: true },
-        { key: 'dateOfBirth', title: 'Date of Birth', placeholder: 'YYYY-MM-DD', type: 'date', icon: <Calendar size={20} />, halfWidth: true },
-        { key: 'gender', title: 'Gender', placeholder: 'Enter gender', type: 'text', icon: <UserCircle2 size={20} />, halfWidth: true },
-        { key: 'country', title: 'Country', placeholder: 'Enter country', type: 'text', icon: <MapPin size={20} />, halfWidth: true },
-        { key: 'city', title: 'City', placeholder: 'Enter city', type: 'text', icon: <MapPin size={20} />, halfWidth: true },
-        { key: 'street', title: 'Street', placeholder: 'Enter street', type: 'text', icon: <MapPin size={20} />, halfWidth: true },
-        { key: 'zipcode', title: 'Zipcode', placeholder: 'Enter zipcode', type: 'text', icon: <MapPin size={20} />, halfWidth: true },
-
-        // Passport Information
-        { key: 'passportID', title: 'Passport ID', placeholder: 'Enter passport ID', type: 'text', icon: <Key size={20} />, halfWidth: true },
-        { key: 'passportIssuedBy', title: 'Passport Issued By', placeholder: 'Enter issuing authority', type: 'text', icon: <Key size={20} />, halfWidth: true },
-        { key: 'passportIssuedDate', title: 'Passport Issue Date', placeholder: 'YYYY-MM-DD', type: 'date', icon: <Calendar size={20} />, halfWidth: true },
-        { key: 'passportExpiredDate', title: 'Passport Expiry Date', placeholder: 'YYYY-MM-DD', type: 'date', icon: <Calendar size={20} />, halfWidth: true },
-
-        // ID Card Information
-        { key: 'idCardID', title: 'ID Card Number', placeholder: 'Enter ID card number', type: 'text', icon: <CreditCard size={20} />, halfWidth: true },
-        { key: 'idCardIssuedBy', title: 'ID Card Issued By', placeholder: 'Enter issuing authority', type: 'text', icon: <CreditCard size={20} />, halfWidth: true },
-        { key: 'idCardIssuedDate', title: 'ID Card Issue Date', placeholder: 'YYYY-MM-DD', type: 'date', icon: <Calendar size={20} />, halfWidth: true },
-        { key: 'idCardExpiredDate', title: 'ID Card Expiry Date', placeholder: 'YYYY-MM-DD', type: 'date', icon: <Calendar size={20} />, halfWidth: true },
-
-        // Driving License Information
-        { key: 'drivingLicenseID', title: 'Driving License Number', placeholder: 'Enter license number', type: 'text', icon: <Car size={20} />, halfWidth: true },
-        { key: 'drivingLicenseIssuedBy', title: 'License Issued By', placeholder: 'Enter issuing authority', type: 'text', icon: <Car size={20} />, halfWidth: true },
-        { key: 'drivingLicenseIssuedDate', title: 'License Issue Date', placeholder: 'YYYY-MM-DD', type: 'date', icon: <Calendar size={20} />, halfWidth: true },
-        { key: 'drivingLicenseExpiredDate', title: 'License Expiry Date', placeholder: 'YYYY-MM-DD', type: 'date', icon: <Calendar size={20} />, halfWidth: true },
-
-        // Contact Information
-        { key: 'phone', title: 'Phone', placeholder: 'Enter phone number', type: 'tel', icon: <Phone size={20} />, halfWidth: true },
-        { key: 'gmail', title: 'Gmail', placeholder: 'Enter Gmail address', type: 'email', icon: <Mail size={20} />, halfWidth: true },
-        { key: 'passwordGmail', title: 'Gmail Password', placeholder: 'Enter Gmail password', type: 'password', icon: <Lock size={20} />, halfWidth: true },
-        { key: 'twoFactorGmail', title: 'Gmail 2FA', placeholder: 'Enter 2FA code', type: 'text', icon: <Key size={20} />, halfWidth: true },
-
-        // Job Information
-        { key: 'jobTitle', title: 'Job Title', placeholder: 'Enter job title', type: 'text', icon: <Briefcase size={20} />, halfWidth: true },
-        { key: 'jobCompany', title: 'Company', placeholder: 'Enter company name', type: 'text', icon: <Building2 size={20} />, halfWidth: true },
-        { key: 'jobStartDate', title: 'Job Start Date', placeholder: 'YYYY-MM-DD', type: 'date', icon: <Calendar size={20} />, halfWidth: true },
-        { key: 'jobEndDate', title: 'Job End Date', placeholder: 'YYYY-MM-DD', type: 'date', icon: <Calendar size={20} />, halfWidth: true },
-    ];
 
     return (
         <Drawer
@@ -171,7 +162,7 @@ export default function IdentifyDrawer({ isOpen, onClose }: IdentifyDrawerProps)
             size={500}
             className="h-full"
         >
-            <div className="p-4 bg-sidebar-primary h-full">
+            <div className="p-4 bg-sidebar-primary h-full overflow-y-auto custom-scrollbar">
                 {/* Header */}
                 <div className="flex justify-between items-center mb-6">
                     <Button variant="ghost" onClick={onClose} className="text-gray-400">
@@ -203,36 +194,44 @@ export default function IdentifyDrawer({ isOpen, onClose }: IdentifyDrawerProps)
                         </div>
                         <Button
                             className="bg-purple-500 hover:bg-purple-600"
-                            onClick={handleUpdateIdentity}
+                            onClick={handleCreateIdentity}
                         >
                             Save Changes
                         </Button>
                     </div>
                 </div>
 
+                        
+
                 <div className="space-y-4">
                     {/* Personal Information */}
                     <div className="border border-gray-800/100 p-4 rounded-lg">
-                        <div className="flex items-center gap-3 mb-3">
-                            <div className="p-2 bg-purple-500/20 rounded-lg">
-                                <User className="h-5 w-5 text-purple-400" />
+                        <div className="flex flex-col gap-1">
+                            <div className="flex items-center gap-3">
+                                <div className="p-2 bg-purple-500/20 rounded-lg">
+                                    <User className="h-5 w-5 text-purple-400" />
+                                </div>
+                                <input
+                                    type="text"
+                                    value={formValues.firstname}
+                                    onChange={(e) => handleInputChange('firstname', e.target.value)}
+                                    placeholder="First Name"
+                                    className={`bg-gray-800 rounded px-2 py-1 w-full ${formErrors.firstname ? 'border border-red-500' : ''}`}
+                                />
                             </div>
-                            <input
-                                type="text"
-                                value={formValues.firstname}
-                                onChange={(e) => handleInputChange('firstname', e.target.value)}
-                                placeholder="First Name"
-                                className="bg-gray-800 rounded px-2 py-1 w-full"
-                            />
+                            {formErrors.firstname && <span className="text-red-500 text-sm ml-11">{formErrors.firstname}</span>}
                         </div>
-                        <div className="space-y-3">
-                            <input
-                                type="text"
-                                value={formValues.lastname}
-                                onChange={(e) => handleInputChange('lastname', e.target.value)}
-                                placeholder="Last Name"
-                                className="bg-gray-800 rounded px-2 py-1 w-full"
-                            />
+                        <div className="space-y-3 mt-3">
+                            <div className="flex flex-col gap-1">
+                                <input
+                                    type="text"
+                                    value={formValues.lastname}
+                                    onChange={(e) => handleInputChange('lastname', e.target.value)}
+                                    placeholder="Last Name"
+                                    className={`bg-gray-800 rounded px-2 py-1 w-full ${formErrors.lastname ? 'border border-red-500' : ''}`}
+                                />
+                                {formErrors.lastname && <span className="text-red-500 text-sm">{formErrors.lastname}</span>}
+                            </div>
                             <div className="flex items-center gap-2">
                                 <Calendar className="h-4 w-4 text-gray-400" />
                                 <input
@@ -303,21 +302,252 @@ export default function IdentifyDrawer({ isOpen, onClose }: IdentifyDrawerProps)
                         </div>
                     </div>
 
+                    {/* Job Information */}
+                    <div className="border border-gray-800/100 p-4 rounded-lg">
+                        <div
+                            className="flex items-center justify-between cursor-pointer"
+                            onClick={() => toggleSection('job')}
+                        >
+                            <div className="flex items-center gap-2">
+                                <Briefcase className="h-4 w-4 text-gray-400" />
+                                <span className="text-gray-400">Job Information</span>
+                            </div>
+                            {expandedSections.job ?
+                                <ChevronUp className="h-4 w-4 text-gray-400" /> :
+                                <ChevronDown className="h-4 w-4 text-gray-400" />
+                            }
+                        </div>
+
+                        {expandedSections.job && (
+                            <div className="space-y-3 mt-3">
+                                <input
+                                    type="text"
+                                    value={formValues.jobTitle}
+                                    onChange={(e) => handleInputChange('jobTitle', e.target.value)}
+                                    placeholder="Job Title"
+                                    className="bg-gray-800 rounded px-2 py-1 w-full"
+                                />
+                                <input
+                                    type="text"
+                                    value={formValues.jobCompany}
+                                    onChange={(e) => handleInputChange('jobCompany', e.target.value)}
+                                    placeholder="Company"
+                                    className="bg-gray-800 rounded px-2 py-1 w-full"
+                                />
+                                <textarea
+                                    value={formValues.jobDescription}
+                                    onChange={(e) => handleInputChange('jobDescription', e.target.value)}
+                                    placeholder="Job Description"
+                                    className="bg-gray-800 rounded px-2 py-1 w-full"
+                                />
+                                <div className="flex gap-2">
+                                    <div className="flex-1">
+                                        <input
+                                            type="date"
+                                            value={formValues.jobStartDate}
+                                            onChange={(e) => handleInputChange('jobStartDate', e.target.value)}
+                                            placeholder="Start Date"
+                                            className="bg-gray-800 rounded px-2 py-1 w-full"
+                                        />
+                                    </div>
+                                    <div className="flex-1">
+                                        <input
+                                            type="date"
+                                            value={formValues.jobEndDate}
+                                            onChange={(e) => handleInputChange('jobEndDate', e.target.value)}
+                                            placeholder="End Date"
+                                            className="bg-gray-800 rounded px-2 py-1 w-full"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Passport Information */}
+                    <div className="border border-gray-800/100 p-4 rounded-lg">
+                        <div
+                            className="flex items-center justify-between cursor-pointer"
+                            onClick={() => toggleSection('passport')}
+                        >
+                            <div className="flex items-center gap-2">
+                                <FileText className="h-4 w-4 text-gray-400" />
+                                <span className="text-gray-400">Passport Information</span>
+                            </div>
+                            {expandedSections.passport ?
+                                <ChevronUp className="h-4 w-4 text-gray-400" /> :
+                                <ChevronDown className="h-4 w-4 text-gray-400" />
+                            }
+                        </div>
+
+                        {expandedSections.passport && (
+                            <div className="space-y-3 mt-3">
+                                <input
+                                    type="text"
+                                    value={formValues.passportID}
+                                    onChange={(e) => handleInputChange('passportID', e.target.value)}
+                                    placeholder="Passport ID"
+                                    className="bg-gray-800 rounded px-2 py-1 w-full"
+                                />
+                                <input
+                                    type="text"
+                                    value={formValues.passportIssuedBy}
+                                    onChange={(e) => handleInputChange('passportIssuedBy', e.target.value)}
+                                    placeholder="Issued By"
+                                    className="bg-gray-800 rounded px-2 py-1 w-full"
+                                />
+                                <div className="flex gap-2">
+                                    <div className="flex-1">
+                                        <input
+                                            type="date"
+                                            value={formValues.passportIssuedDate}
+                                            onChange={(e) => handleInputChange('passportIssuedDate', e.target.value)}
+                                            placeholder="Issue Date"
+                                            className="bg-gray-800 rounded px-2 py-1 w-full"
+                                        />
+                                    </div>
+                                    <div className="flex-1">
+                                        <input
+                                            type="date"
+                                            value={formValues.passportExpiredDate}
+                                            onChange={(e) => handleInputChange('passportExpiredDate', e.target.value)}
+                                            placeholder="Expiry Date"
+                                            className="bg-gray-800 rounded px-2 py-1 w-full"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+
+                    {/* ID Card Information */}
+                    <div className="border border-gray-800/100 p-4 rounded-lg">
+                        <div
+                            className="flex items-center justify-between cursor-pointer"
+                            onClick={() => toggleSection('idCard')}
+                        >
+                            <div className="flex items-center gap-2">
+                                <CreditCard className="h-4 w-4 text-gray-400" />
+                                <span className="text-gray-400">ID Card Information</span>
+                            </div>
+                            {expandedSections.idCard ?
+                                <ChevronUp className="h-4 w-4 text-gray-400" /> :
+                                <ChevronDown className="h-4 w-4 text-gray-400" />
+                            }
+                        </div>
+
+                        {expandedSections.idCard && (
+                            <div className="space-y-3 mt-3">
+                                <input
+                                    type="text"
+                                    value={formValues.idCardID}
+                                    onChange={(e) => handleInputChange('idCardID', e.target.value)}
+                                    placeholder="ID Card Number"
+                                    className="bg-gray-800 rounded px-2 py-1 w-full"
+                                />
+                                <input
+                                    type="text"
+                                    value={formValues.idCardIssuedBy}
+                                    onChange={(e) => handleInputChange('idCardIssuedBy', e.target.value)}
+                                    placeholder="Issued By"
+                                    className="bg-gray-800 rounded px-2 py-1 w-full"
+                                />
+                                <div className="flex gap-2">
+                                    <div className="flex-1">
+                                        <input
+                                            type="date"
+                                            value={formValues.idCardIssuedDate}
+                                            onChange={(e) => handleInputChange('idCardIssuedDate', e.target.value)}
+                                            placeholder="Issue Date"
+                                            className="bg-gray-800 rounded px-2 py-1 w-full"
+                                        />
+                                    </div>
+                                    <div className="flex-1">
+                                        <input
+                                            type="date"
+                                            value={formValues.idCardExpiredDate}
+                                            onChange={(e) => handleInputChange('idCardExpiredDate', e.target.value)}
+                                            placeholder="Expiry Date"
+                                            className="bg-gray-800 rounded px-2 py-1 w-full"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Driving License Information */}
+                    <div className="border border-gray-800/100 p-4 rounded-lg">
+                        <div
+                            className="flex items-center justify-between cursor-pointer"
+                            onClick={() => toggleSection('drivingLicense')}
+                        >
+                            <div className="flex items-center gap-2">
+                                <Car className="h-4 w-4 text-gray-400" />
+                                <span className="text-gray-400">Driving License Information</span>
+                            </div>
+                            {expandedSections.drivingLicense ?
+                                <ChevronUp className="h-4 w-4 text-gray-400" /> :
+                                <ChevronDown className="h-4 w-4 text-gray-400" />
+                            }
+                        </div>
+
+                        {expandedSections.drivingLicense && (
+                            <div className="space-y-3 mt-3">
+                                <input
+                                    type="text"
+                                    value={formValues.drivingLicenseID}
+                                    onChange={(e) => handleInputChange('drivingLicenseID', e.target.value)}
+                                    placeholder="License Number"
+                                    className="bg-gray-800 rounded px-2 py-1 w-full"
+                                />
+                                <input
+                                    type="text"
+                                    value={formValues.drivingLicenseIssuedBy}
+                                    onChange={(e) => handleInputChange('drivingLicenseIssuedBy', e.target.value)}
+                                    placeholder="Issued By"
+                                    className="bg-gray-800 rounded px-2 py-1 w-full"
+                                />
+                                <div className="flex gap-2">
+                                    <div className="flex-1">
+                                        <input
+                                            type="date"
+                                            value={formValues.drivingLicenseIssuedDate}
+                                            onChange={(e) => handleInputChange('drivingLicenseIssuedDate', e.target.value)}
+                                            placeholder="Issue Date"
+                                            className="bg-gray-800 rounded px-2 py-1 w-full"
+                                        />
+                                    </div>
+                                    <div className="flex-1">
+                                        <input
+                                            type="date"
+                                            value={formValues.drivingLicenseExpiredDate}
+                                            onChange={(e) => handleInputChange('drivingLicenseExpiredDate', e.target.value)}
+                                            placeholder="Expiry Date"
+                                            className="bg-gray-800 rounded px-2 py-1 w-full"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+
                     {/* Notes */}
                     <div className="pt-2 border-t border-gray-700">
-                            <div className="flex items-center gap-2 mb-2">
-                                <FileText className="h-4 w-4 text-gray-400" />
-                                <span className="text-gray-400">Notes</span>
-                            </div>
-                            <textarea
-                                value={formValues.notes}
-                                onChange={(e) => handleInputChange('notes', e.target.value)}
-                                placeholder="Add notes..."
-                                className="bg-gray-800 rounded px-2 py-1 w-full min-h-[100px]"
+                        <div className="flex items-center gap-2 mb-2">
+                            <FileText className="h-4 w-4 text-gray-400" />
+                            <span className="text-gray-400">Notes</span>
+                        </div>
+                        <textarea
+                            value={formValues.notes}
+                            onChange={(e) => handleInputChange('notes', e.target.value)}
+                            placeholder="Add notes..."
+                            className="bg-gray-800 rounded px-2 py-1 w-full min-h-[100px]"
                         />
                     </div>
                 </div>
             </div>
         </Drawer>
     );
+
 }

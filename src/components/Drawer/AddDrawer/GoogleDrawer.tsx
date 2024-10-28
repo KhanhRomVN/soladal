@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Drawer from 'react-modern-drawer';
 import { EyeOff, Eye, X, Mail, Lock, Key, Phone, User, Globe, Calendar, Languages, Monitor, Network, FileText, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -21,7 +21,6 @@ interface GoogleDrawerProps {
 }
 
 export default function GoogleDrawer({ isOpen, onClose }: GoogleDrawerProps) {
-    const drawerRef = useRef<HTMLDivElement>(null);
     const [formErrors, setFormErrors] = useState<{ [key: string]: string }>({});
     const [groups, setGroups] = useState<Group[]>([]);
     const [selectedGroupId, setSelectedGroupId] = useState<number | null>(null);
@@ -47,11 +46,19 @@ export default function GoogleDrawer({ isOpen, onClose }: GoogleDrawerProps) {
         fetchGroups();
     }, []);
 
+    const validateEmail = (email: string): boolean => {
+        const gmailRegex = /^[a-zA-Z0-9._%+-]+@gmail\.com$/;
+        return gmailRegex.test(email);
+    };
 
+    const validatePassword = (password: string): boolean => {
+        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+        return passwordRegex.test(password);
+    };
 
     const fetchGroups = async () => {
         try {
-            const groupsData = await _GET('/group');
+            const groupsData = await _GET('/group/google');
             if (Array.isArray(groupsData) && groupsData.length > 0) {
                 setGroups(groupsData);
                 const allGroupsId = groupsData.find((group: Group) => group.title === "All Groups")?.id;
@@ -70,15 +77,40 @@ export default function GoogleDrawer({ isOpen, onClose }: GoogleDrawerProps) {
     const handleInputChange = (key: string, value: string) => {
         setFormValues(prev => ({ ...prev, [key]: value }));
         if (formErrors[key]) {
-            setFormErrors(prev => ({ ...prev, [key]: '' }));
+            setFormErrors(prev => {
+                const newErrors = { ...prev };
+                delete newErrors[key];
+                return newErrors;
+            });
         }
     };
 
-    const handleUpdateGoogle = async () => {
+    const handleCreateGoogle = async () => {
+        const newErrors: { [key: string]: string } = {};
+
+        // Validate email
         if (!formValues.email.trim()) {
-            setFormErrors(prev => ({ ...prev, email: 'Email is required' }));
+            newErrors.email = 'Email is required';
+        } else if (!validateEmail(formValues.email)) {
+            newErrors.email = 'Must be a valid Gmail address (@gmail.com)';
+        }
+
+        // Validate password
+        if (!formValues.password.trim()) {
+            newErrors.password = 'Password is required';
+        } else if (!validatePassword(formValues.password)) {
+            newErrors.password = 'Password must be at least 8 characters and include uppercase, lowercase, number, and special character';
+        }
+
+        // If there are any errors, set them and return
+        if (Object.keys(newErrors).length > 0) {
+            setFormErrors(newErrors);
             return;
         }
+
+        // Clear any existing errors
+        setFormErrors({});
+
         try {
             const googleData = {
                 ...formValues,
@@ -87,45 +119,12 @@ export default function GoogleDrawer({ isOpen, onClose }: GoogleDrawerProps) {
                 isFavorite: false,
             };
 
-            await _POST('/googles/update', googleData);
+            await _POST('/googles', googleData);
             onClose();
         } catch (error) {
-            console.error("Error updating Google account:", error);
+            console.error("Error creating Google account:", error);
         }
     };
-
-    const fields = [
-        // Account Credentials
-        { 
-            key: 'email', 
-            title: 'Email (*)', 
-            placeholder: 'Enter Gmail address', 
-            type: 'email', 
-            icon: <Mail size={20} />,
-            required: true,
-            error: formErrors.email,
-            halfWidth: true 
-        },
-        { key: 'password', title: 'Password', placeholder: 'Enter password', type: 'password', icon: <Lock size={20} />, halfWidth: true },
-        { key: 'recoveryEmail', title: 'Recovery Email', placeholder: 'Enter recovery email', type: 'email', icon: <Mail size={20} />, halfWidth: true },
-        { key: 'twoFactor', title: '2FA', placeholder: 'Enter 2FA code', type: 'text', icon: <Key size={20} />, halfWidth: true },
-        
-        // Personal Information
-        { key: 'displayName', title: 'Display Name', placeholder: 'Enter display name', type: 'text', icon: <User size={20} />, halfWidth: true },
-        { key: 'phone', title: 'Phone', placeholder: 'Enter phone number', type: 'tel', icon: <Phone size={20} />, halfWidth: true },
-        { key: 'dateOfBirth', title: 'Date of Birth', placeholder: 'YYYY-MM-DD', type: 'date', icon: <Calendar size={20} />, halfWidth: true },
-        
-        // Regional Settings
-        { key: 'country', title: 'Country', placeholder: 'Select country', type: 'text', icon: <Globe size={20} />, halfWidth: true },
-        { key: 'language', title: 'Language', placeholder: 'Select language', type: 'text', icon: <Languages size={20} />, halfWidth: true },
-        
-        // Technical Settings
-        { key: 'agent', title: 'User Agent', placeholder: 'Enter user agent', type: 'text', icon: <Monitor size={20} />, halfWidth: true },
-        { key: 'proxy', title: 'Proxy', placeholder: 'Enter proxy', type: 'text', icon: <Network size={20} />, halfWidth: true },
-        
-        // Status
-        { key: 'status', title: 'Status', placeholder: 'Enter status', type: 'text', icon: <FileText size={20} />, halfWidth: true },
-    ];
 
     return (
         <Drawer
@@ -135,7 +134,7 @@ export default function GoogleDrawer({ isOpen, onClose }: GoogleDrawerProps) {
             size={500}
             className="h-full"
         >
-            <div className="p-4 bg-sidebar-primary h-full">
+            <div className="p-4 bg-sidebar-primary h-full flex flex-col">
                 {/* Header */}
                 <div className="flex justify-between items-center mb-6">
                     <Button variant="ghost" onClick={onClose} className="text-gray-400">
@@ -167,50 +166,56 @@ export default function GoogleDrawer({ isOpen, onClose }: GoogleDrawerProps) {
                         </div>
                         <Button
                             className="bg-purple-500 hover:bg-purple-600"
-                            onClick={handleUpdateGoogle}
+                            onClick={handleCreateGoogle}
                         >
                             Save Changes
                         </Button>
                     </div>
                 </div>
 
-                <div className="space-y-4">
+                <div className="space-y-4 overflow-y-auto flex-1 custom-scrollbar">
                     {/* Title Section */}
                     <div className="border border-gray-800/100 p-4 rounded-lg">
-                        <div className="flex items-center gap-3 mb-3">
-                            <div className="p-2 bg-purple-500/20 rounded-lg">
-                                <Mail className="h-5 w-5 text-purple-400" />
+                        <div className="flex flex-col gap-1">
+                            <div className="flex items-center gap-3">
+                                <div className="p-2 bg-purple-500/20 rounded-lg">
+                                    <Mail className="h-5 w-5 text-purple-400" />
+                                </div>
+                                <input
+                                    type="email"
+                                    value={formValues.email}
+                                    onChange={(e) => handleInputChange('email', e.target.value)}
+                                    placeholder="Gmail Address"
+                                    className={`bg-gray-800 rounded px-2 py-1 w-full ${formErrors.email ? 'border border-red-500' : ''}`}
+                                />
                             </div>
-                            <input
-                                type="email"
-                                value={formValues.email}
-                                onChange={(e) => handleInputChange('email', e.target.value)}
-                                placeholder="Gmail Address"
-                                className="bg-gray-800 rounded px-2 py-1 w-full"
-                            />
+                            {formErrors.email && <span className="text-red-500 text-sm ml-11">{formErrors.email}</span>}
                         </div>
                     </div>
 
                     {/* Account Credentials */}
                     <div className="border border-gray-800/100 p-4 rounded-lg space-y-3">
-                        <div className="flex items-center gap-2">
-                            <Lock className="h-4 w-4 text-gray-400" />
-                            <div className="relative w-full">
-                                <input
-                                    type={showPassword ? "text" : "password"}
-                                    value={formValues.password}
-                                    onChange={(e) => handleInputChange('password', e.target.value)}
-                                    placeholder="Password"
-                                    className="bg-gray-800 rounded px-2 py-1 w-full pr-8"
-                                />
-                                <button
-                                    type="button"
-                                    onClick={() => setShowPassword(!showPassword)}
-                                    className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-300"
-                                >
-                                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                                </button>
+                        <div className="flex flex-col gap-1">
+                            <div className="flex items-center gap-2">
+                                <Lock className="h-4 w-4 text-gray-400" />
+                                <div className="relative w-full">
+                                    <input
+                                        type={showPassword ? "text" : "password"}
+                                        value={formValues.password}
+                                        onChange={(e) => handleInputChange('password', e.target.value)}
+                                        placeholder="Password"
+                                        className={`bg-gray-800 rounded px-2 py-1 w-full pr-8 ${formErrors.password ? 'border border-red-500' : ''}`}
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowPassword(!showPassword)}
+                                        className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-300"
+                                    >
+                                        {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                                    </button>
+                                </div>
                             </div>
+                            {formErrors.password && <span className="text-red-500 text-sm ml-6">{formErrors.password}</span>}
                         </div>
                         <div className="flex items-center gap-2">
                             <Mail className="h-4 w-4 text-gray-400" />
@@ -237,12 +242,72 @@ export default function GoogleDrawer({ isOpen, onClose }: GoogleDrawerProps) {
                     {/* Additional Info */}
                     <div className="border border-gray-800/100 p-4 rounded-lg space-y-3">
                         <div className="flex items-center gap-2">
+                            <User className="h-4 w-4 text-gray-400" />
+                            <input
+                                type="text"
+                                value={formValues.displayName}
+                                onChange={(e) => handleInputChange('displayName', e.target.value)}
+                                placeholder="Display Name"
+                                className="bg-gray-800 rounded px-2 py-1 w-full"
+                            />
+                        </div>
+                        <div className="flex items-center gap-2">
                             <Phone className="h-4 w-4 text-gray-400" />
                             <input
                                 type="tel"
                                 value={formValues.phone}
                                 onChange={(e) => handleInputChange('phone', e.target.value)}
                                 placeholder="Phone Number"
+                                className="bg-gray-800 rounded px-2 py-1 w-full"
+                            />
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <Calendar className="h-4 w-4 text-gray-400" />
+                            <input
+                                type="date"
+                                value={formValues.dateOfBirth}
+                                onChange={(e) => handleInputChange('dateOfBirth', e.target.value)}
+                                placeholder="Date of Birth"
+                                className="bg-gray-800 rounded px-2 py-1 w-full"
+                            />
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <Globe className="h-4 w-4 text-gray-400" />
+                            <input
+                                type="text"
+                                value={formValues.country}
+                                onChange={(e) => handleInputChange('country', e.target.value)}
+                                placeholder="Country"
+                                className="bg-gray-800 rounded px-2 py-1 w-full"
+                            />
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <Languages className="h-4 w-4 text-gray-400" />
+                            <input
+                                type="text"
+                                value={formValues.language}
+                                onChange={(e) => handleInputChange('language', e.target.value)}
+                                placeholder="Language"
+                                className="bg-gray-800 rounded px-2 py-1 w-full"
+                            />
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <Monitor className="h-4 w-4 text-gray-400" />
+                            <input
+                                type="text"
+                                value={formValues.agent}
+                                onChange={(e) => handleInputChange('agent', e.target.value)}
+                                placeholder="User Agent"
+                                className="bg-gray-800 rounded px-2 py-1 w-full"
+                            />
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <Network className="h-4 w-4 text-gray-400" />
+                            <input
+                                type="text"
+                                value={formValues.proxy}
+                                onChange={(e) => handleInputChange('proxy', e.target.value)}
+                                placeholder="Proxy"
                                 className="bg-gray-800 rounded px-2 py-1 w-full"
                             />
                         </div>
