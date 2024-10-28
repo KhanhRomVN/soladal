@@ -12,7 +12,8 @@ import * as LucideIcons from 'lucide-react';
 import { useContent } from '@/Context/ContentContext';
 import { ContentType } from '@/Context/ContentContext';
 import parse from 'html-react-parser';
-// import { useGroupDrawer } from '@/Context/GroupDrawerContext';
+import CreateGroupDrawer from '@/components/Drawer/AddDrawer/CreateGroupDrawer';
+
 
 
 interface AppGroup {
@@ -39,6 +40,9 @@ const Sidebar: React.FC = () => {
   const { setCurrentContent } = useContent();
   const [groups, setGroups] = useState<Group[]>([]);
 
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+
+
   const appGroups: AppGroup[] = [
     { id: 1, title: 'Account', lucideIcon: 'User', type: 'account', bgColor: 'bg-blue-500' },
     { id: 2, title: 'Card', lucideIcon: 'CreditCard', type: 'card', bgColor: 'bg-green-500' },
@@ -51,6 +55,10 @@ const Sidebar: React.FC = () => {
   useEffect(() => {
     fetchGroups();
   }, []);
+
+  const toggleDrawer = () => {
+    setIsDrawerOpen((prev) => !prev);
+  };
 
   const fetchGroups = async () => {
     try {
@@ -94,27 +102,24 @@ const Sidebar: React.FC = () => {
         <Button
           variant="ghost"
           className="w-full justify-between hover:bg-button-hover1"
-          onClick={() => {
-            console.log("Create Group button clicked");
-            // useGroupDrawer();
-          }}
+          onClick={toggleDrawer}
         >
           <span className="text-primary text-base">Create Group</span>
           <Plus className="h-5 w-5 text-primary" />
         </Button>
         {/* Group[App] list */}
         <div className="mt-2 pb-2 border-b border-gray-700">
-        {appGroups.map((group) => (
-          <Button
-            key={group.id}
-            variant="ghost"
-            className="w-full justify-between hover:bg-button-hover1 focus:bg-primary focus:text-white mb-2 pr-2.5"
-            onClick={() => handleTabClick(group.type as ContentType, null)}
-          >
-            <span className="text-white text-base flex items-center">
-              {getIconComponent(group.lucideIcon, group.bgColor)}
-              {group.title}
-            </span>
+          {appGroups.map((group) => (
+            <Button
+              key={group.id}
+              variant="ghost"
+              className="w-full justify-between hover:bg-button-hover1 focus:bg-primary focus:text-white mb-2 pr-2.5"
+              onClick={() => handleTabClick(group.type as ContentType, null)}
+            >
+              <span className="text-white text-base flex items-center">
+                {getIconComponent(group.lucideIcon, group.bgColor)}
+                {group.title}
+              </span>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" size="icon" className="h-8 w-8 p-0">
@@ -133,18 +138,18 @@ const Sidebar: React.FC = () => {
         </div>
         {/* Group[User] list */}
         {groups.length > 0 && (
-        <div className="mt-2">
-          {groups.map((group) => (
-            <Button
-              key={group.id}
-              variant="ghost"
-              className="w-full justify-between hover:bg-button-hover1 focus:bg-primary focus:text-white mb-2 pr-2.5"
-              onClick={() => handleTabClick(group.type as ContentType, group.id)}
-            >
-              <span className="text-white text-base flex items-center">
-                {getUserGroupIcon(group.lucideIcon)}
-                {group.title}
-              </span>
+          <div className="mt-2">
+            {groups.map((group) => (
+              <Button
+                key={group.id}
+                variant="ghost"
+                className="w-full justify-between hover:bg-button-hover1 focus:bg-primary focus:text-white mb-2 pr-2.5"
+                onClick={() => handleTabClick(group.type as ContentType, group.id)}
+              >
+                <span className="text-white text-base flex items-center">
+                  {getUserGroupIcon(group.lucideIcon)}
+                  {group.title}
+                </span>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button variant="ghost" size="icon" className="h-8 w-8 p-0">
@@ -187,6 +192,11 @@ const Sidebar: React.FC = () => {
           </DropdownMenu>
         </Button>
       </div>
+
+      <CreateGroupDrawer
+        isOpen={isDrawerOpen}
+        onClose={() => setIsDrawerOpen(false)}
+      />
     </aside>
   );
 };

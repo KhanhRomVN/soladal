@@ -3,16 +3,15 @@ import DragWindowRegion from "@/components/DragWindowRegion";
 import NavigationMenu from "@/components/NavigationMenu";
 import Sidebar from "@/components/Sidebar";
 import { Search, X, Plus, User, CreditCard, Fingerprint, Globe, Copy, FileText } from "lucide-react";
-import Drawer from 'react-modern-drawer';
 import 'react-modern-drawer/dist/index.css'
 import { Button } from "@/components/ui/button";
 // Drawer
-import AccountDrawer from "@/components/Drawer/AccountDrawer";
-import CardDrawer from "@/components/Drawer/CardDrawer";
-import IdentifyDrawer from "@/components/Drawer/IdentifyDrawer";
-import GoogleDrawer from "@/components/Drawer/GoogleDrawer";
-import CloneDrawer from "@/components/Drawer/CloneDrawer";
-import NoteDrawer from "@/components/Drawer/NoteDrawer";
+import AccountDrawer from "@/components/Drawer/AddDrawer/AccountDrawer";
+import CardDrawer from "@/components/Drawer/AddDrawer/CardDrawer";
+import IdentifyDrawer from "@/components/Drawer/AddDrawer/IdentifyDrawer";
+import GoogleDrawer from "@/components/Drawer/AddDrawer/GoogleDrawer";
+import CloneDrawer from "@/components/Drawer/AddDrawer/CloneDrawer";
+import NoteDrawer from "@/components/Drawer/AddDrawer/NoteDrawer";
 
 function SearchBar() {
     const [searchTerm, setSearchTerm] = useState("");
