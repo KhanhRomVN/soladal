@@ -6,9 +6,10 @@ import {
     getCoreRowModel,
     useReactTable,
 } from '@tanstack/react-table';
-import Drawer from 'react-modern-drawer'
 import 'react-modern-drawer/dist/index.css'
-import { Button } from '@/components/ui/button';
+import GoogleContentDrawer from '../Drawer/GoogleContentDrawer';
+
+
 interface GoogleContentProps {
     id: number | null;
 }
@@ -211,6 +212,11 @@ const GoogleContent: React.FC<GoogleContentProps> = ({ id }) => {
         getCoreRowModel: getCoreRowModel(),
     });
 
+    const handleCloseDrawer = () => {
+        setIsDrawerOpen(false);
+        setIsEditing(false);
+    };
+
     return (
         <>
             <div className="relative overflow-x-auto rounded-sm shadow-md">
@@ -250,144 +256,17 @@ const GoogleContent: React.FC<GoogleContentProps> = ({ id }) => {
                     </tbody>
                 </table>
             </div>
-
-            <Drawer
-                open={isDrawerOpen}
-                onClose={() => setIsDrawerOpen(false)}
-                direction="right"
-                size={400}
-            >
-                <div className="p-6 bg-sidebar-primary h-full">
-                    <div className="flex justify-between items-center mb-8 pb-4 border-b border-gray-200">
-                        <Button
-                            onClick={() => {
-                                setIsDrawerOpen(false);
-                                setIsEditing(false);
-                            }}
-                            className="p-2 hover:bg-gray-100 rounded-sm transition-colors duration-200"
-                        >
-                            <X className="h-4 w-4" />
-                        </Button>
-                        {isEditing ? (
-                            <Button
-                                onClick={handleSave}
-                                className="bg-green-600 hover:bg-green-700 text-white px-2 py-1 rounded-sm transition-colors duration-200"
-                            >
-                                Save
-                            </Button>
-                        ) : (
-                            <Button
-                                onClick={handleEditClick}
-                                className="bg-button-background hover:bg-button-backgroundHover text-button-foreground px-2 py-1 rounded-sm transition-colors duration-200"
-                            >
-                                Edit
-                            </Button>
-                        )}
-                    </div>
-
-                    {selectedRow && (
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="p-4 rounded-lg border border-gray-200 hover:border-gray-300 transition-colors duration-200">
-                                <div className="text-sm text-gray-200 mb-2">Email</div>
-                                {isEditing ? (
-                                    <input
-                                        type="email"
-                                        value={editedRow?.email || ''}
-                                        onChange={(e) => setEditedRow(prev => prev ? { ...prev, email: e.target.value } : null)}
-                                        className="w-full bg-gray-700 text-gray-200 p-1 rounded"
-                                    />
-                                ) : (
-                                    <div className="font-medium text-gray-500">{selectedRow.email}</div>
-                                )}
-                            </div>
-
-                            <div className="p-4 rounded-lg border border-gray-200 hover:border-gray-300 transition-colors duration-200">
-                                <div className="text-sm text-gray-200 mb-2">Password</div>
-                                {isEditing ? (
-                                    <input
-                                        type="text"
-                                        value={editedRow?.password || ''}
-                                        onChange={(e) => setEditedRow(prev => prev ? { ...prev, password: e.target.value } : null)}
-                                        className="w-full bg-gray-700 text-gray-200 p-1 rounded"
-                                    />
-                                ) : (
-                                    <div className="font-medium text-gray-500 font-mono">{selectedRow.password}</div>
-                                )}
-                            </div>
-
-                            <div className="p-4 rounded-lg border border-gray-200 hover:border-gray-300 transition-colors duration-200">
-                                <div className="text-sm text-gray-200 mb-2">Two Factor</div>
-                                {isEditing ? (
-                                    <input
-                                        type="text"
-                                        value={editedRow?.twoFactor || ''}
-                                        onChange={(e) => setEditedRow(prev => prev ? { ...prev, twoFactor: e.target.value } : null)}
-                                        className="w-full bg-gray-700 text-gray-200 p-1 rounded"
-                                    />
-                                ) : (
-                                    <div className="font-medium text-gray-500 font-mono">{selectedRow.twoFactor}</div>
-                                )}
-                            </div>
-
-                            <div className="p-4 rounded-lg border border-gray-200 hover:border-gray-300 transition-colors duration-200">
-                                <div className="text-sm text-gray-200 mb-2">Phone</div>
-                                {isEditing ? (
-                                    <input
-                                        type="text"
-                                        value={editedRow?.phone || ''}
-                                        onChange={(e) => setEditedRow(prev => prev ? { ...prev, phone: e.target.value } : null)}
-                                        className="w-full bg-gray-700 text-gray-200 p-1 rounded"
-                                    />
-                                ) : (
-                                    <div className="font-medium text-gray-500">{selectedRow.phone}</div>
-                                )}
-                            </div>
-
-                            <div className="p-4 rounded-lg border border-gray-200 hover:border-gray-300 transition-colors duration-200">
-                                <div className="text-sm text-gray-200 mb-2">Country</div>
-                                {isEditing ? (
-                                    <input
-                                        type="text"
-                                        value={editedRow?.country || ''}
-                                        onChange={(e) => setEditedRow(prev => prev ? { ...prev, country: e.target.value } : null)}
-                                        className="w-full bg-gray-700 text-gray-200 p-1 rounded"
-                                    />
-                                ) : (
-                                    <div className="font-medium text-gray-500">{selectedRow.country}</div>
-                                )}
-                            </div>
-
-                            <div className="p-4 rounded-lg border border-gray-200 hover:border-gray-300 transition-colors duration-200">
-                                <div className="text-sm text-gray-200 mb-2">Created At</div>
-                                <div className="font-medium text-gray-500">
-                                    {new Date(selectedRow.createdAt).toLocaleString()}
-                                </div>
-                            </div>
-
-                            <div className="p-4 rounded-lg border border-gray-200 hover:border-gray-300 transition-colors duration-200">
-                                <div className="text-sm text-gray-200 mb-2">Updated At</div>
-                                <div className="font-medium text-gray-500">
-                                    {new Date(selectedRow.updatedAt).toLocaleString()}
-                                </div>
-                            </div>
-
-                            <div className="col-span-2 p-4 rounded-lg border border-gray-200 hover:border-gray-300 transition-colors duration-200">
-                                <div className="text-sm text-gray-200 mb-2">Agent</div>
-                                {isEditing ? (
-                                    <input
-                                        type="text"
-                                        value={editedRow?.agent || ''}
-                                        onChange={(e) => setEditedRow(prev => prev ? { ...prev, agent: e.target.value } : null)}
-                                        className="w-full bg-gray-700 text-gray-200 p-1 rounded"
-                                    />
-                                ) : (
-                                    <div className="font-medium text-gray-500 break-all">{selectedRow.agent}</div>
-                                )}
-                            </div>
-                        </div>
-                    )}
-                </div>
-            </Drawer>
+            <GoogleContentDrawer 
+                isOpen={isDrawerOpen}
+                onClose={handleCloseDrawer}
+                selectedRow={selectedRow}
+                isEditing={isEditing}
+                editedRow={editedRow}
+                setEditedRow={setEditedRow}
+                handleSave={handleSave}
+                handleEditClick={handleEditClick}
+            />
+            
         </>
     );
 };
