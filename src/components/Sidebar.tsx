@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Plus, MoreVertical, Settings } from "lucide-react";
 import { _GET } from "@/utils/auth_api";
@@ -13,8 +13,7 @@ import { useContent } from '@/Context/ContentContext';
 import { ContentType } from '@/Context/ContentContext';
 import parse from 'html-react-parser';
 import CreateGroupDrawer from '@/components/Drawer/AddDrawer/CreateGroupDrawer';
-
-
+import { Link } from "@tanstack/react-router";
 
 interface AppGroup {
   id: number;
@@ -63,7 +62,6 @@ const Sidebar: React.FC = () => {
   const fetchGroups = async () => {
     try {
       const data = await _GET('/group');
-      console.log(data);
       setGroups(data);
     } catch (error) {
       console.error("Error fetching groups:", error);
@@ -116,10 +114,13 @@ const Sidebar: React.FC = () => {
               className="w-full justify-between hover:bg-button-hover1 focus:bg-primary focus:text-white mb-2 pr-2.5"
               onClick={() => handleTabClick(group.type as ContentType, null)}
             >
-              <span className="text-white text-base flex items-center">
+              <Link 
+                to="/"
+                className="text-white text-base flex items-center"
+              >
                 {getIconComponent(group.lucideIcon, group.bgColor)}
                 {group.title}
-              </span>
+              </Link>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" size="icon" className="h-8 w-8 p-0">
@@ -146,10 +147,13 @@ const Sidebar: React.FC = () => {
                 className="w-full justify-between hover:bg-button-hover1 focus:bg-primary focus:text-white mb-2 pr-2.5"
                 onClick={() => handleTabClick(group.type as ContentType, group.id)}
               >
-                <span className="text-white text-base flex items-center">
+                <Link 
+                  to="/"
+                  className="text-white text-base flex items-center"
+                >
                   {getUserGroupIcon(group.lucideIcon)}
                   {group.title}
-                </span>
+                </Link>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button variant="ghost" size="icon" className="h-8 w-8 p-0">
@@ -185,9 +189,8 @@ const Sidebar: React.FC = () => {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent>
-              <DropdownMenuItem>Profile</DropdownMenuItem>
-              <DropdownMenuItem>Settings</DropdownMenuItem>
-              <DropdownMenuItem>Logout</DropdownMenuItem>
+              <DropdownMenuItem><Link to="/setting">Setting</Link></DropdownMenuItem>
+              <DropdownMenuItem><Link to="/switch">Logout</Link></DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </Button>

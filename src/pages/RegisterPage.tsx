@@ -3,6 +3,9 @@ import axios from 'axios';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import FormInput from '@/components/FormInput/FormInput';
+import { apiUrl } from '@/api';
+import { router } from "@/routes/router";
+
 
 const RegisterPage: React.FC = () => {
     const [formData, setFormData] = useState({
@@ -29,11 +32,10 @@ const RegisterPage: React.FC = () => {
         setError('');
 
         try {
-            const response = await axios.post('http://localhost:5050/api/users', formData);
+            const response = await axios.post(`${apiUrl}/users`, formData);
 
             if (response.data) {
-                console.log('Registration successful');
-                window.location.href = '/login';
+                router.navigate({ to: '/login' });
             }
         } catch (err) {
             setError('Registration failed. Please try again.');

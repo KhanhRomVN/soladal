@@ -1,9 +1,10 @@
 import { createRoute } from "@tanstack/react-router";
 import HomePage from "../pages/HomePage";
 import { RootRoute } from "./__root";
-import AboutPage from "@/pages/AboutPage";
 import LoginPage from "@/pages/LoginPage";
 import RegisterPage from "@/pages/RegisterPage";
+import SettingPage from "@/pages/SettingPage";
+import SwitchPage from "@/pages/SwitchPage";
 import BaseLayout from "@/layouts/BaseLayout";
 import MainLayout from "@/layouts/MainLayout";
 import React from "react";
@@ -15,16 +16,6 @@ export const HomeRoute = createRoute({
         <MainLayout>
             <HomePage />
         </MainLayout>
-    ),
-});
-
-export const AboutRoute = createRoute({
-    getParentRoute: () => RootRoute,
-    path: "/about",
-    component: () => (
-        <BaseLayout>
-            <AboutPage />
-        </BaseLayout>
     ),
 });
 
@@ -48,4 +39,21 @@ export const RegisterRoute = createRoute({
     ),
 });
 
-export const rootTree = RootRoute.addChildren([HomeRoute, AboutRoute, LoginRoute, RegisterRoute]);
+export const SettingRoute = createRoute({
+    getParentRoute: () => RootRoute,
+    path: "/setting",
+    component: () => (
+        <MainLayout>
+            <SettingPage />
+        </MainLayout>
+    ),
+});
+
+export const SwitchRoute = createRoute({
+    getParentRoute: () => RootRoute,
+    path: "/switch",
+    component: () => <SwitchPage />,
+});
+
+
+export const rootTree = RootRoute.addChildren([HomeRoute, LoginRoute, RegisterRoute, SettingRoute, SwitchRoute]);

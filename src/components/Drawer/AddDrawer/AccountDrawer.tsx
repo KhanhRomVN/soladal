@@ -53,7 +53,6 @@ export default function AccountDrawer({ isOpen, onClose }: AccountDrawerProps) {
             } else {
                 setGroups([]);
                 setSelectedGroupId(null);
-                console.log("No groups found or empty response from API");
             }
         } catch (error) {
             console.error("Error fetching groups:", error);

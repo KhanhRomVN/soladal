@@ -3,6 +3,7 @@ import axios from 'axios';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import FormInput from '@/components/FormInput/FormInput';
+import { apiUrl } from '@/api';
 
 const LoginPage: React.FC = () => {
     const [formData, setFormData] = useState({
@@ -25,11 +26,16 @@ const LoginPage: React.FC = () => {
         setError('');
 
         try {
-            const response = await axios.post('http://localhost:5050/api/users/login', formData);
+            const response = await axios.post(`${apiUrl}/users/login`, formData);
 
             if (response.data.access_token) {
                 localStorage.setItem('access_token', response.data.access_token);
-                console.log('Login successful');
+                const existingAccounts = JSON.parse(localStorage.getItem('ListAccount') || '[]');
+                
+                if (!existingAccounts.includes(formData.email)) {
+                    existingAccounts.push(formData.email);
+                    localStorage.setItem('ListAccount', JSON.stringify(existingAccounts));
+                }
                 window.location.href = '/';
             }
         } catch (err) {

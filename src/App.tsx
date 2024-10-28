@@ -6,10 +6,9 @@ import "./localization/i18n";
 import { updateAppLanguage } from "./helpers/language_helpers";
 import { router } from "./routes/router";
 import { RouterProvider } from "@tanstack/react-router";
-// context
-import { AccountDrawerProvider } from "./Context/AccountDrawerContext";
-import { GroupDrawerProvider } from "./Context/GroupDrawerContext";
 import { ContentProvider } from "./Context/ContentContext";
+import IdleTimerWrapper from './components/IdleTimerWrapper';
+
 export default function App() {
     const { i18n } = useTranslation();
 
@@ -24,12 +23,10 @@ export default function App() {
 const root = createRoot(document.getElementById("app")!);
 root.render(
     <React.StrictMode>
-        <GroupDrawerProvider>
-            <AccountDrawerProvider>
-                <ContentProvider>
-                    <App />
-                </ContentProvider>
-            </AccountDrawerProvider>
-        </GroupDrawerProvider>
+        <IdleTimerWrapper>
+            <ContentProvider>
+                <App />
+            </ContentProvider>
+        </IdleTimerWrapper>
     </React.StrictMode>
 );

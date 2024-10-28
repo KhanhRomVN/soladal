@@ -34,7 +34,6 @@ const CreateGroupDrawer: React.FC<CreateGroupDrawerProps> = ({ isOpen, onClose }
             };
 
             const response = await _POST('/group', groupData);
-            console.log("Group created:", response);
             onClose();
         } catch (error) {
             console.error("Error creating group:", error);

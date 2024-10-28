@@ -50,7 +50,6 @@ export default function CardDrawer({ isOpen, onClose }: CardDrawerProps) {
             } else {
                 setGroups([]);
                 setSelectedGroupId(null);
-                console.log("No groups found or empty response from API");
             }
         } catch (error) {
             console.error("Error fetching groups:", error);
