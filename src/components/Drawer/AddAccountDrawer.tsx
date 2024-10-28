@@ -1,10 +1,8 @@
-import React, { useContext, useRef, useEffect, useState } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import { X, Mail, User, Lock, Key, Globe, FileText, Eye, EyeOff, Phone, ChevronDown } from 'lucide-react';
 import FormInputV2 from '@/components/FormInput/FormInputV2';
 import { Button } from '@/components/ui/button';
 import { _GET, _POST } from '@/utils/auth_api';
-// context
-import { AccountDrawerContext } from '@/Context/AccountDrawerContext';
 
 interface Group {
     id: number;
@@ -17,8 +15,11 @@ interface Group {
     updatedAt: string;
 }
 
-const AddAccountDrawer: React.FC = () => {
-    const { isAccountDrawerOpen, closeAccountDrawer } = useContext(AccountDrawerContext);
+interface AddAccountDrawerProps {
+    onClose: () => void;
+}
+
+const AddAccountDrawer: React.FC<AddAccountDrawerProps> = ({ onClose }) => {
     const drawerRef = useRef<HTMLDivElement>(null);
     const [formValues, setFormValues] = useState({
         title: '',
@@ -36,25 +37,19 @@ const AddAccountDrawer: React.FC = () => {
 
     useEffect(() => {
         fetchGroups();
-    }, []);
-
-    useEffect(() => {
-        const handleClickOutside = (event: MouseEvent) => {
-            if (drawerRef.current && !drawerRef.current.contains(event.target as Node)) {
-                if (window.confirm('Bạn có chắc chắn muốn đóng drawer không?')) {
-                    closeAccountDrawer();
-                }
-            }
-        };
-
-        if (isAccountDrawerOpen) {
-            document.addEventListener('mousedown', handleClickOutside);
-        }
-
+        document.addEventListener('mousedown', handleClickOutside);
         return () => {
             document.removeEventListener('mousedown', handleClickOutside);
         };
-    }, [isAccountDrawerOpen, closeAccountDrawer]);
+    }, []);
+
+    const handleClickOutside = (event: MouseEvent) => {
+        if (drawerRef.current && !drawerRef.current.contains(event.target as Node)) {
+            if (window.confirm('Bạn có chắc chắn muốn đóng drawer không?')) {
+                onClose();
+            }
+        }
+    };
 
     const fetchGroups = async () => {
         try {
@@ -99,9 +94,8 @@ const AddAccountDrawer: React.FC = () => {
                 type: 'account',
             };
 
-            const response = await _POST('/accounts', accountData);
-            console.log("Account created:", response);
-            closeAccountDrawer();
+            await _POST('/accounts', accountData);
+            onClose();
         } catch (error) {
             console.error("Error creating account:", error);
         }
@@ -125,14 +119,12 @@ const AddAccountDrawer: React.FC = () => {
         { key: 'website', title: 'Website', placeholder: 'https://', type: 'url', icon: <Globe size={20} />, halfWidth: true },
     ];
 
-    if (!isAccountDrawerOpen) return null;
-
     return (
-        <div className="fixed inset-y-0 right-0 w-[45rem] bg-background shadow-xl z-50 text-white p-4 border-l border-gray-700" ref={drawerRef}>
+        <div className="h-full bg-background shadow-xl text-white p-4" ref={drawerRef}>
             <div className="h-full flex flex-col">
                 {/* Header */}
                 <div className="flex justify-between items-center mb-4 pb-4 border-b border-gray-700">
-                    <button onClick={closeAccountDrawer} className="text-gray-400 hover:text-gray-200 rounded-sm bg-gray-800 p-1">
+                    <button onClick={onClose} className="text-gray-400 hover:text-gray-200 rounded-sm bg-gray-800 p-1">
                         <X size={24} />
                     </button>
                     <div className="flex gap-2 items-center">
