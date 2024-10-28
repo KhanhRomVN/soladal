@@ -4,13 +4,13 @@ import FormInputV2 from '@/components/FormInput/FormInputV2';
 import { Button } from '@/components/ui/button';
 import { _POST } from '@/utils/auth_api';
 import * as LucideIcons from 'lucide-react';
-// context
-import { GroupDrawerContext } from '@/Context/GroupDrawerContext';
 
-const AddGroupDrawer: React.FC = () => {
-    const { isGroupDrawerOpen, closeGroupDrawer } = useContext(GroupDrawerContext);
-    console.log("isGroupDrawerOpen:", isGroupDrawerOpen);
+interface CreateGroupDrawerProps {
+    isOpen: boolean;
+    onClose: () => void;
+}
 
+const CreateGroupDrawer: React.FC<CreateGroupDrawerProps> = ({ isOpen, onClose }) => {
     const drawerRef = useRef<HTMLDivElement>(null);
     const [formValues, setFormValues] = useState({
         title: '',
@@ -18,25 +18,7 @@ const AddGroupDrawer: React.FC = () => {
     const [selectedIcon, setSelectedIcon] = useState<string | null>(null);
     const [selectedType, setSelectedType] = useState<string>('account');
 
-    useEffect(() => {
-        const handleClickOutside = (event: MouseEvent) => {
-            if (drawerRef.current && !drawerRef.current.contains(event.target as Node)) {
-                if (window.confirm('Bạn có chắc chắn muốn đóng drawer không?')) {
-                    closeGroupDrawer();
-                }
-            }
-        };
-
-        if (isGroupDrawerOpen) {
-            document.addEventListener('mousedown', handleClickOutside);
-        }
-
-        return () => {
-            document.removeEventListener('mousedown', handleClickOutside);
-        };
-    }, [isGroupDrawerOpen, closeGroupDrawer]);
-
-    if (!isGroupDrawerOpen) return null;
+    if (!isOpen) return null;
 
     const handleInputChange = (key: string, value: string) => {
         setFormValues(prev => ({ ...prev, [key]: value }));
@@ -51,11 +33,8 @@ const AddGroupDrawer: React.FC = () => {
                 canDelete: true,
             };
 
-            console.log("groupData:", groupData);
-    
             const response = await _POST('/group', groupData);
-            console.log("Group created:", response);
-            closeGroupDrawer();
+            onClose();
         } catch (error) {
             console.error("Error creating group:", error);
         }
@@ -83,7 +62,7 @@ const AddGroupDrawer: React.FC = () => {
             <div className="h-full flex flex-col">
                 {/* Header */}
                 <div className="flex justify-between items-center mb-4 pb-4 border-b border-gray-700">
-                    <button onClick={closeGroupDrawer} className="text-gray-400 hover:text-gray-200 rounded-sm bg-gray-800 p-1">
+                    <button onClick={onClose} className="text-gray-400 hover:text-gray-200 rounded-sm bg-gray-800 p-1">
                         <X size={24} />
                     </button>
                     <div className="flex items-center space-x-4">
@@ -134,11 +113,10 @@ const AddGroupDrawer: React.FC = () => {
                             })}
                         </div>
                     </div>
-
                 </form>
             </div>
         </div>
     );
 };
 
-export default AddGroupDrawer;
+export default CreateGroupDrawer;

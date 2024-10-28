@@ -7,7 +7,7 @@ import {
     useReactTable,
 } from '@tanstack/react-table';
 import 'react-modern-drawer/dist/index.css'
-import GoogleContentDrawer from '../Drawer/GoogleContentDrawer';
+import GoogleContentDrawer from '../Drawer/EditDrawer/GoogleContentDrawer';
 
 
 interface GoogleContentProps {
